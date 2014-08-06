@@ -242,4 +242,7 @@ div.leaflet-bottom.leaflet-left > * {
 }
 .rossobc{
 	color: #EB593C;
-}	
+}
+.leaflet-control-geocoder .completely-wrapper {
+    display: inline-block;
+}

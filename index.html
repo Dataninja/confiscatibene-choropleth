@@ -14,6 +14,7 @@
         <meta property="og:image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/logocb.png" />
         <script src="js/head/head.load.min.js"></script>
         <script type="text/javascript">
+            //var JSTERS = {};
             head.load("js/queue/queue.v1.min.js")
                 .load("js/d3/d3.v3.min.js")
                 .load("js/geostats/geostats.min.js")
@@ -24,6 +25,7 @@
                     "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css",
                     "js/label/leaflet.label.js", "js/label/leaflet.label.css",
                 ])
+                .load("js/completely/complete.ly.1.0.1.js")
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
                 .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
@@ -293,17 +295,33 @@
                         bounds: bounds,
                         email: "info@confiscatibene.it",
                         callback: function (results) {
-                            var bbox = results[0].boundingbox,
-                                first = new L.LatLng(bbox[0], bbox[2]),
-                                second = new L.LatLng(bbox[1], bbox[3]),
-                                bounds = new L.LatLngBounds([first, second]);
-    	    		        info.update();
-                            loadData('comuni');
-                            this._map.fitBounds(bounds);
+                            if (results.length) {
+                                var bbox = results[0].boundingbox,
+                                    first = new L.LatLng(bbox[0], bbox[2]),
+                                    second = new L.LatLng(bbox[1], bbox[3]),
+                                    bounds = new L.LatLngBounds([first, second]);
+    	    	    	        info.update();
+                                loadData('comuni');
+                                this._map.fitBounds(bounds);
+                            }
                         }
                     }
                 );
                 map.addControl(osmGeocoder);
+                osmGeocoder._completely = completely(osmGeocoder._input);
+                osmGeocoder._completely.onChange = function (text) {
+                    osmGeocoder._completely.startFrom = text.lastIndexOf(' ')+1;
+                    osmGeocoder._completely.repaint();
+                };
+                osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
+                d3.json('geo/list.json', function(err,data) {
+                        for (var k in data) {
+                            if (data.hasOwnProperty(k) && defaultGeo.hasOwnProperty(k)) {
+                                defaultGeo[k].list = data[k];
+                            }
+                        }
+                        osmGeocoder._completely.options = defaultGeo['comuni'].list.map(function(el) { return el[geo['comuni'].name]; });
+                });
                 /*** ***/
 
                 /*** Legenda ***/
@@ -326,9 +344,9 @@
 
                 /*** Gestione dei dati ***/
                 var defaultGeo = {
-                        'regioni': { id: 'COD_REG', name: 'NOME_REG', resource: null },
-                        'province': { id: 'COD_PRO', name: 'NOME_PRO', resource: null },
-                        'comuni': { id: 'PRO_COM', name: 'NOME_COM', resource: null }
+                        'regioni': { id: 'COD_REG', name: 'NOME_REG', resource: null, list: [] },
+                        'province': { id: 'COD_PRO', name: 'NOME_PRO', resource: null, list: [] },
+                        'comuni': { id: 'PRO_COM', name: 'NOME_COM', resource: null, list: [] }
                     },
                     defaultData = {
                         'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
@@ -377,7 +395,6 @@
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
-                            parameters.dl = d;
                             info.update();
                             loadData(d);
                         }
@@ -423,6 +440,7 @@
                 function loadData(territorio) { // territorio = regioni || province || comuni
                     d3.selectAll("nav#menu-ui a").classed("active", false);
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
+                    parameters.dl = territorio;
                     geojson.clearLayers();
                     if (!geo[territorio].resource || !data[territorio].resource) {
                         var limit = 5000,
@@ -465,7 +483,8 @@
                                         }
                                     });
                                 } else {
-    			                    map.spin(false);
+                                    map.spin(false);
+                                    //JSTERS[territorio] = geo[territorio].resource.features.map(function(el) { var arr = {}; arr[geo[territorio].id] = el.properties[geo[territorio].id]; arr[geo[territorio].name] = el.properties[geo[territorio].name]; return arr; });
                                     joinData(territorio);
                                     binData(territorio);
 	        	    	            geojson.addData(geo[territorio].resource);
