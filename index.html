@@ -34,6 +34,47 @@
             head.ready(function() {
                 var apiPath = '/api/confiscatibene/action/datastore/search.json';
                 
+                /*** Gestione dei dati ***/
+                var defaultGeo = {
+                        'regioni': { id: 'COD_REG', name: 'NOME_REG', resource: null, list: [] },
+                        'province': { id: 'COD_PRO', name: 'NOME_PRO', resource: null, list: [] },
+                        'comuni': { id: 'PRO_COM', name: 'NOME_COM', resource: null, list: [] }
+                    },
+                    defaultData = {
+                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
+                        'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
+                        'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null, binCol: 'Totale beni', bins: [], ranges: [] }
+                    },
+                    geo = {}, data = {};
+
+                // Parametri dell'URL
+                /* ie. http://viz.confiscatibene.it/anbsc/choropleth/?ls[0]=regioni&ls[1]=province&ls[2]=comuni&dl=regioni&t=1
+                    {
+                        ls: Array(), // Livelli caricati: regioni, province, comuni
+                        dl: [string], // Livello mostrato al caricamento (e a cui eventualmente si riferisce t)
+                        t: [int], // Codice istat del territorio centrato e con infowindow aperta
+                        i: [int] // Codice istat del territorio con infowindow aperta
+                    }
+                */
+                var parameters = Arg.query();
+                parameters.ls = parameters.ls || d3.keys(defaultGeo);
+                parameters.dl = parameters.fl || parameters.dl || parameters.ls[0];
+                if (parameters.t) {
+                    parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
+                    parameters.fl = parameters.dl;
+                    parameters.dl = parameters.ls[0];
+                }
+                
+                // Livelli disponibili da parametri dell'URL
+                for (var i=0; i<parameters.ls.length; i++) {
+                    if (defaultGeo.hasOwnProperty(parameters.ls[i]) && defaultData.hasOwnProperty(parameters.ls[i])) {
+                        geo[parameters.ls[i]] = defaultGeo[parameters.ls[i]];
+                        data[parameters.ls[i]] = defaultData[parameters.ls[i]];
+                    }
+                }
+                if (parameters.t) { parameters.ls.unshift(parameters.fl); }
+                /*** ***/
+
                 /*** Inizializzazione della mappa ***/
                 var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: false });
         	    var southWest = L.latLng(37.118,6.877),
@@ -302,7 +343,7 @@
                                     bounds = new L.LatLngBounds([first, second]);
     	    	    	        info.update();
                                 loadData('comuni');
-                                this._map.fitBounds(bounds);
+                                this._map.fitBounds(bounds, {maxZoom:12});
                             }
                         }
                     }
@@ -314,12 +355,8 @@
                     osmGeocoder._completely.repaint();
                 };
                 osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
-                d3.json('geo/list.json', function(err,data) {
-                        for (var k in data) {
-                            if (data.hasOwnProperty(k) && defaultGeo.hasOwnProperty(k)) {
-                                defaultGeo[k].list = data[k];
-                            }
-                        }
+                d3.json((parameters.t ? 'geo/lista_comuni-'+parameters.t+'.json' : 'geo/lista_comuni.json'), function(err,data) {
+                        defaultGeo['comuni'].list = data;
                         osmGeocoder._completely.options = defaultGeo['comuni'].list.map(function(el) { return el[geo['comuni'].name]; });
                 });
                 /*** ***/
@@ -341,46 +378,6 @@
     	    	};
                 legend.addTo(map);
                 /*** ***/
-
-                /*** Gestione dei dati ***/
-                var defaultGeo = {
-                        'regioni': { id: 'COD_REG', name: 'NOME_REG', resource: null, list: [] },
-                        'province': { id: 'COD_PRO', name: 'NOME_PRO', resource: null, list: [] },
-                        'comuni': { id: 'PRO_COM', name: 'NOME_COM', resource: null, list: [] }
-                    },
-                    defaultData = {
-                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
-                        'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
-                        'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null, binCol: 'Totale beni', bins: [], ranges: [] }
-                    },
-                    geo = {}, data = {};
-
-                // Parametri dell'URL
-                /* ie. http://viz.confiscatibene.it/anbsc/choropleth/?ls[0]=regioni&ls[1]=province&ls[2]=comuni&dl=regioni&t=1
-                    {
-                        ls: Array(), // Livelli caricati: regioni, province, comuni
-                        dl: [string], // Livello mostrato al caricamento (e a cui eventualmente si riferisce t)
-                        t: [int], // Codice istat del territorio centrato e con infowindow aperta
-                        i: [int] // Codice istat del territorio con infowindow aperta
-                    }
-                */
-                parameters = Arg.query();
-                parameters.ls = parameters.ls || d3.keys(defaultGeo);
-                parameters.dl = parameters.fl || parameters.dl || parameters.ls[0];
-                if (parameters.t) {
-                    parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
-                    parameters.fl = parameters.dl;
-                    parameters.dl = parameters.ls[0];
-                }
-                
-                // Livelli disponibili da parametri dell'URL
-                for (var i=0; i<parameters.ls.length; i++) {
-                    if (defaultGeo.hasOwnProperty(parameters.ls[i]) && defaultData.hasOwnProperty(parameters.ls[i])) {
-                        geo[parameters.ls[i]] = defaultGeo[parameters.ls[i]];
-                        data[parameters.ls[i]] = defaultData[parameters.ls[i]];
-                    }
-                }
-                if (parameters.t) { parameters.ls.unshift(parameters.fl); }
 
                 // Selettore dei livelli
                 d3.select("nav#menu-ui").selectAll("a")
@@ -484,7 +481,9 @@
                                     });
                                 } else {
                                     map.spin(false);
-                                    //JSTERS[territorio] = geo[territorio].resource.features.map(function(el) { var arr = {}; arr[geo[territorio].id] = el.properties[geo[territorio].id]; arr[geo[territorio].name] = el.properties[geo[territorio].name]; return arr; });
+                                    /*if (territorio == 'comuni') {
+                                        JSTERS['comuni'] = geo['comuni'].resource.features.map(function(el) { var arr = {}; arr[geo['regioni'].id] = el.properties[geo['regioni'].id]; arr[geo['province'].id] = el.properties[geo['province'].id]; arr[geo['comuni'].id] = el.properties[geo['comuni'].id]; arr[geo['comuni'].name] = el.properties[geo['comuni'].name]; return arr; });
+                                    }*/
                                     joinData(territorio);
                                     binData(territorio);
 	        	    	            geojson.addData(geo[territorio].resource);
