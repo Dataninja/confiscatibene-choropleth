@@ -456,7 +456,7 @@
                                 data[territorio].resource = datajs;
                                 var allData = [datajs.result.records],
                                     div = parseInt(datajs.result.total) / datajs.result.limit;
-                                if (div > 1) { // Paginazione dei risultati
+                                /*if (div > 1) { // Paginazione dei risultati
                                     var q = queue();
                                     limit = datajs.result.limit;
                                     for (var n=1; n < div; n++) {
@@ -479,7 +479,7 @@
                                             if (iwId.length) { info.update(iwId[0].properties); }
                                         }
                                     });
-                                } else {
+                                } else {*/
                                     map.spin(false);
                                     /*if (territorio == 'comuni') {
                                         JSTERS['comuni'] = geo['comuni'].resource.features.map(function(el) { var arr = {}; arr[geo['regioni'].id] = el.properties[geo['regioni'].id]; arr[geo['province'].id] = el.properties[geo['province'].id]; arr[geo['comuni'].id] = el.properties[geo['comuni'].id]; arr[geo['comuni'].name] = el.properties[geo['comuni'].name]; return arr; });
@@ -494,7 +494,7 @@
                                         });
                                         if (iwId.length) { info.update(iwId[0].properties); }
                                     }
-                                }
+                                //}
                             });
                     } else {
 		    	        geojson.addData(geo[territorio].resource);
