@@ -454,47 +454,20 @@
                             .await(function(err, geojs, datajs) {
                                 geo[territorio].resource = geojs;
                                 data[territorio].resource = datajs;
-                                var allData = [datajs.result.records],
-                                    div = parseInt(datajs.result.total) / datajs.result.limit;
-                                /*if (div > 1) { // Paginazione dei risultati
-                                    var q = queue();
-                                    limit = datajs.result.limit;
-                                    for (var n=1; n < div; n++) {
-                                        q.defer(d3.json, dataPath + '&limit=' + limit + '&offset=' + (n*limit));
-                                    }
-                                    q.await(function() {
-                                        for (var i=1; i<arguments.length; i++) {
-                                            allData.push(arguments[i].result.records);
-                                        }
-                                        data[territorio].resource.result.records = d3.merge(allData);
-			                            map.spin(false);
-                                        joinData(territorio);
-                                        binData(territorio);
-                                        geojson.addData(geo[territorio].resource);
-                                        if (parameters.t) { map.fitBounds(geojson.getBounds()); }
-                                        if (parameters.i) {
-                                        var iwId = geo[territorio].resource.features.filter(function(el) { 
-                                                return el.properties[geo[territorio].id] == parameters.i;
-                                            });
-                                            if (iwId.length) { info.update(iwId[0].properties); }
-                                        }
+                                map.spin(false);
+                                /*if (territorio == 'comuni') {
+                                    JSTERS['comuni'] = geo['comuni'].resource.features.map(function(el) { var arr = {}; arr[geo['regioni'].id] = el.properties[geo['regioni'].id]; arr[geo['province'].id] = el.properties[geo['province'].id]; arr[geo['comuni'].id] = el.properties[geo['comuni'].id]; arr[geo['comuni'].name] = el.properties[geo['comuni'].name]; return arr; });
+                                }*/
+                                joinData(territorio);
+                                binData(territorio);
+	        	    	        geojson.addData(geo[territorio].resource);
+                                if (parameters.t) { map.fitBounds(geojson.getBounds()); }
+                                if (parameters.i) {
+                                var iwId = geo[territorio].resource.features.filter(function(el) { 
+                                        return el.properties[geo[territorio].id] == parameters.i;
                                     });
-                                } else {*/
-                                    map.spin(false);
-                                    /*if (territorio == 'comuni') {
-                                        JSTERS['comuni'] = geo['comuni'].resource.features.map(function(el) { var arr = {}; arr[geo['regioni'].id] = el.properties[geo['regioni'].id]; arr[geo['province'].id] = el.properties[geo['province'].id]; arr[geo['comuni'].id] = el.properties[geo['comuni'].id]; arr[geo['comuni'].name] = el.properties[geo['comuni'].name]; return arr; });
-                                    }*/
-                                    joinData(territorio);
-                                    binData(territorio);
-	        	    	            geojson.addData(geo[territorio].resource);
-                                    if (parameters.t) { map.fitBounds(geojson.getBounds()); }
-                                    if (parameters.i) {
-                                    var iwId = geo[territorio].resource.features.filter(function(el) { 
-                                            return el.properties[geo[territorio].id] == parameters.i;
-                                        });
-                                        if (iwId.length) { info.update(iwId[0].properties); }
-                                    }
-                                //}
+                                    if (iwId.length) { info.update(iwId[0].properties); }
+                                }
                             });
                     } else {
 		    	        geojson.addData(geo[territorio].resource);
