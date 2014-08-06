@@ -246,3 +246,7 @@ div.leaflet-bottom.leaflet-left > * {
 .leaflet-control-geocoder .completely-wrapper {
     display: inline-block;
 }
+.leaflet-control.reset {
+    width: 36px;
+    cursor: pointer;
+}

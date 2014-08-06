@@ -58,11 +58,12 @@
                 */
                 var parameters = Arg.query();
                 parameters.ls = parameters.ls || d3.keys(defaultGeo);
-                parameters.dl = parameters.fl || parameters.dl || parameters.ls[0];
+                parameters.ml = parameters.ls[0];
+                parameters.dl = parameters.fl || parameters.dl || parameters.ml;
                 if (parameters.t) {
                     parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
                     parameters.fl = parameters.dl;
-                    parameters.dl = parameters.ls[0];
+                    parameters.dl = parameters.ml = parameters.ls[0];
                 }
                 
                 // Livelli disponibili da parametri dell'URL
@@ -215,6 +216,7 @@
                             });
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
+                        delete parameters.i;
                     }
     		    };
                 info.addTo(map);
@@ -327,6 +329,20 @@
     	    	}).addTo(map);
                 /*** ***/
 
+                /*** Pulsante di reset ***/
+                var reset = L.control({position: 'topleft'});
+                reset.onAdd = function(map) {
+                    var img = L.DomUtil.create('img', 'reset');
+                    img.setAttribute('src','img/italy1.png');
+                    d3.select(img).on('click', function() {
+                        loadData(parameters.ml);
+                        map.fitBounds(geojson.getBounds());
+                    });
+                    return img;
+                };
+                reset.addTo(map);
+                /*** ***/
+
                 /*** Funzione di ricerca del luogo ***/
                 var osmGeocoder = new L.Control.OSMGeocoder(
                     { 
@@ -392,7 +408,6 @@
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
-                            info.update();
                             loadData(d);
                         }
                     })
@@ -437,6 +452,7 @@
                 function loadData(territorio) { // territorio = regioni || province || comuni
                     d3.selectAll("nav#menu-ui a").classed("active", false);
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
+                    info.update();
                     parameters.dl = territorio;
                     geojson.clearLayers();
                     if (!geo[territorio].resource || !data[territorio].resource) {
