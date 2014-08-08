@@ -334,6 +334,7 @@
                 reset.onAdd = function(map) {
                     var img = L.DomUtil.create('img', 'reset');
                     img.setAttribute('src','img/italy1.png');
+                    img.setAttribute('title','Reset');
                     d3.select(img).on('click', function() {
                         loadData(parameters.ml);
                         map.fitBounds(geojson.getBounds());
