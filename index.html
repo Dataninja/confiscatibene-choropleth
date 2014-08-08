@@ -15,6 +15,7 @@
         <script src="js/head/head.load.min.js"></script>
         <script type="text/javascript">
             //var JSTERS = {};
+            var MYDEBUG;
             head.load("js/queue/queue.v1.min.js")
                 .load("js/d3/d3.v3.min.js")
                 .load("js/geostats/geostats.min.js")
@@ -77,7 +78,7 @@
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
-                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: false });
+                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: true });
         	    var southWest = L.latLng(37.118,6.877),
                     northEast = L.latLng(46.826,18.611),
                 	bounds = L.latLngBounds(southWest, northEast);
@@ -97,7 +98,15 @@
                 /*** Gestione dell'infowindow al click ***/
                 var info = L.control({position: 'bottomright'});
         		info.onAdd = function (map) {
-	        		this._div = L.DomUtil.create('div', 'info');
+                    this._div = L.DomUtil.create('div', 'info');
+                    this._div.setAttribute('id','infowindow');
+                    d3.select(this._div)
+                        .on("mouseenter", function() {
+                            map.scrollWheelZoom.disable();
+                        })
+                        .on("mouseleave", function() {
+                            map.scrollWheelZoom.enable();
+                        });
 		        	this.update();
 			        return this._div;
                 };
