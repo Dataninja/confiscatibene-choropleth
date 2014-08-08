@@ -4,7 +4,7 @@
         <title>Mappa dei beni confiscati - Confiscati Bene</title>
 	    <meta charset="utf-8" />
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="http://viz.confiscatibene.it/anbsc/choropleth/img/favicon.ico" />
+        <link rel="shortcut icon" href="img/favicon.gif" />
         <meta property="og:site_name" content="Confiscati Bene" />
         <meta property="og:locale" content="it_it" />
         <meta property="og:type" content="website" />
@@ -225,10 +225,13 @@
                 /*** Logo ***/
                 var logo = L.control({position: 'topleft'});
                 logo.onAdd = function(map) {
-                    var img = L.DomUtil.create('img','logo');
+                    var a = L.DomUtil.create('a','logo'),
+                        img = L.DomUtil.create('img','logo',a);
+                    a.setAttribute('href','http://www.confiscatibene.it/');
+                    a.setAttribute('target','_blank');
                     img.setAttribute('id','logo');
                     img.setAttribute('src','img/logocb.png');
-                    return img;
+                    return a;
                 };
                 logo.addTo(map);
                 /*** ***/
