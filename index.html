@@ -58,6 +58,7 @@
                     }
                 */
                 var parameters = Arg.query();
+                //console.log(parameters);
                 parameters.ls = parameters.ls || d3.keys(defaultGeo);
                 parameters.ml = parameters.ls[0];
                 parameters.dl = parameters.fl || parameters.dl || parameters.ml;
@@ -219,13 +220,13 @@
                         });
                         d3.select(this._div).select("a#close-cross")
                             .on("click", function() {
+                                geojson.eachLayer(function(l) { l.highlight = false; geojson.resetStyle(l); });
                                 delete parameters.i;
                                 info.update();
                                 return false;
                             });
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
-                        delete parameters.i;
                     }
     		    };
                 info.addTo(map);
@@ -273,6 +274,18 @@
                 /*** ***/
 
                 /*** Stile dei livelli ***/
+                var defaultStyle = {
+		        		weight: 0.5,
+			        	opacity: 1,
+				        color: 'white',
+    				    fillOpacity: 0.7,
+    	    			fillColor: 'none'
+		    	    },
+    			    highlightStyle = {
+                        weight: 2,
+                        color: '#666'
+                    };
+
                 function getColor(d, bins) {
                     for (var i=1; i<bins.length; i++) {
                         if (d <= bins[i]) {
@@ -282,14 +295,10 @@
                 }
 
         		function style(feature) {
-                    var territorio = parameters.dl;
-	        		return {
-		        		weight: 0.3,
-			        	opacity: 1,
-				        color: 'white',
-    				    fillOpacity: 0.7,
-    	    			fillColor: getColor(parseInt(feature.properties.data[data[territorio].binCol]), data[territorio].bins)
-		    	    };
+                    var territorio = parameters.dl,
+                        currentStyle = defaultStyle;
+                    currentStyle.fillColor = getColor(parseInt(feature.properties.data[data[territorio].binCol]), data[territorio].bins);
+	        		return currentStyle;
         		}
 
                 /*** Gestione degli eventi ***/
@@ -302,29 +311,23 @@
                     label.setContent(props[geo[parameters.dl].name]+'<br>Beni confiscati: '+props.data[data[parameters.dl].binCol]);
                     label.setLatLng(layer.getBounds().getCenter());
                     map.showLabel(label);
-                    
-                    layer.setStyle({
-    			    	weight: 3,
-	    			    color: '#666',
-    	    			dashArray: '',
-	    	    		fillOpacity: 0.7
-		    	    });
-                    
-                    if (!L.Browser.ie && !L.Browser.opera) {
-	        			layer.bringToFront();
-		        	}
-
     	    	}
                 
                 function resetHighlight(e) {
+                    var layer = e.target;
                     label.close();
-    		    	geojson.resetStyle(e.target);
     	    	}
 
-	    	    function openInfoWindow(e) {
-		        	var layer = e.target;
+	    	    function openInfoWindow(e, layer) {
+                    var layer = layer || e.target;
+                    geojson.eachLayer(function(l) { l.highlight = false; geojson.resetStyle(l); });
+                    layer.highlight = true;
+                    layer.setStyle(highlightStyle);
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
                     info.update(layer.feature.properties);
+                    if (!L.Browser.ie && !L.Browser.opera) {
+	        			layer.bringToFront();
+    	        	}
         		}
 
 	        	function onEachFeature(feature, layer) {
@@ -334,7 +337,6 @@
     				    click: openInfoWindow
     	    		});
 	    	    }
-                
                 geojson = L.geoJson("", {
     	    		style: style,
 	    	    	onEachFeature: onEachFeature
@@ -370,6 +372,7 @@
                                     first = new L.LatLng(bbox[0], bbox[2]),
                                     second = new L.LatLng(bbox[1], bbox[3]),
                                     bounds = new L.LatLngBounds([first, second]);
+                                delete parameters.i;
     	    	    	        info.update();
                                 loadData('comuni');
                                 this._map.fitBounds(bounds, {maxZoom:12});
@@ -421,6 +424,7 @@
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
+                            info.update();
                             loadData(d);
                         }
                     })
@@ -465,7 +469,6 @@
                 function loadData(territorio) { // territorio = regioni || province || comuni
                     d3.selectAll("nav#menu-ui a").classed("active", false);
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
-                    info.update();
                     parameters.dl = territorio;
                     geojson.clearLayers();
                     if (!geo[territorio].resource || !data[territorio].resource) {
@@ -492,14 +495,17 @@
 	        	    	        geojson.addData(geo[territorio].resource);
                                 if (parameters.t) { map.fitBounds(geojson.getBounds()); }
                                 if (parameters.i) {
-                                var iwId = geo[territorio].resource.features.filter(function(el) { 
-                                        return el.properties[geo[territorio].id] == parameters.i;
+                                    geojson.eachLayer(function(l) { 
+                                        if (l.feature.properties[geo[territorio].id] == parameters.i) {
+                                            openInfoWindow(null, l);
+                                        }
                                     });
-                                    if (iwId.length) { info.update(iwId[0].properties); }
                                 }
                             });
                     } else {
-		    	        geojson.addData(geo[territorio].resource);
+                        geojson.addData(geo[territorio].resource);
+                        delete parameters.i;
+                        info.update();
                     }
                 }
                 /*** ***/
