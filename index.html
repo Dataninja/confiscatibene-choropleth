@@ -88,8 +88,8 @@
 	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
                     {
                         attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a> | ' + 
-                            'Download icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> | ' + 
-                            'Share icons designed by <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>',
+                        'Icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a> | ' + 
+                        'Fork me on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>',
                 		opacity: .7
 		            }
                 ).addTo(map);
@@ -246,6 +246,53 @@
                 logo.addTo(map);
                 /*** ***/
 
+                /*** Pulsante di reset ***/
+                var reset = L.control({position: 'topright'});
+                reset.onAdd = function(map) {
+                    var img = L.DomUtil.create('img', 'reset');
+                    img.setAttribute('src','img/reset.png');
+                    img.setAttribute('title','Reset');
+                    d3.select(img).on('click', function() {
+                        loadData(parameters.ml);
+                        map.fitBounds(geojson.getBounds());
+                    });
+                    return img;
+                };
+                reset.addTo(map);
+                /*** ***/
+
+                /*** Pulsante di embed ***/
+                var embed = L.control({position: 'topright'});
+                embed.onAdd = function(map) {
+                    var img = L.DomUtil.create('img', 'embed');
+                    img.setAttribute('src','img/embed.png');
+                    img.setAttribute('title','Embed this map');
+                    d3.select(img).on('click', function() {
+                        console.log("Show the code!");
+                    });
+                    return img;
+                };
+                embed.addTo(map);
+                /*** ***/
+
+                /*** Fullscreen ***/
+                var fullscreen = L.control({position: 'topright'});
+                fullscreen.onAdd = function(map) {
+                    var a = L.DomUtil.create('a',''),
+                        img = L.DomUtil.create('img','fullscreen',a);
+                    a.setAttribute('href','#');
+                    //a.setAttribute('target','_blank');
+                    img.setAttribute('id','fullscreen');
+                    img.setAttribute('src','img/fullscreen.png');
+                    d3.select(a).on('click', function () {
+                            console.log("Change href and go!");
+                            this.setAttribute('href','#');
+                    });
+                    return a;
+                };
+                fullscreen.addTo(map);
+                /*** ***/
+
                 /*** Pulsanti di condivisione ***/
                 var share = L.control({position: 'bottomleft'});
                 share.onAdd = function(map) {
@@ -301,6 +348,41 @@
 	        		return currentStyle;
         		}
 
+                /*** Funzione di ricerca del luogo ***/
+                var osmGeocoder = new L.Control.OSMGeocoder(
+                    { 
+                        collapsed: true, 
+                        position: 'topleft',
+                        text: 'Cerca il tuo comune',
+                        bounds: bounds,
+                        email: "info@confiscatibene.it",
+                        callback: function (results) {
+                            if (results.length) {
+                                var bbox = results[0].boundingbox,
+                                    first = new L.LatLng(bbox[0], bbox[2]),
+                                    second = new L.LatLng(bbox[1], bbox[3]),
+                                    bounds = new L.LatLngBounds([first, second]);
+                                delete parameters.i;
+    	    	    	        info.update();
+                                loadData('comuni');
+                                this._map.fitBounds(bounds, {maxZoom:12});
+                            }
+                        }
+                    }
+                );
+                map.addControl(osmGeocoder);
+                osmGeocoder._completely = completely(osmGeocoder._input);
+                osmGeocoder._completely.onChange = function (text) {
+                    osmGeocoder._completely.startFrom = text.lastIndexOf(' ')+1;
+                    osmGeocoder._completely.repaint();
+                };
+                osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
+                d3.json((parameters.t ? 'geo/lista_comuni-'+parameters.t+'.json' : 'geo/lista_comuni.json'), function(err,data) {
+                        defaultGeo['comuni'].list = data;
+                        osmGeocoder._completely.options = defaultGeo['comuni'].list.map(function(el) { return el[geo['comuni'].name]; });
+                });
+                /*** ***/
+
                 /*** Gestione degli eventi ***/
                 var geojson, label = new L.Label();
 
@@ -341,56 +423,6 @@
     	    		style: style,
 	    	    	onEachFeature: onEachFeature
     	    	}).addTo(map);
-                /*** ***/
-
-                /*** Pulsante di reset ***/
-                var reset = L.control({position: 'topleft'});
-                reset.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'reset');
-                    img.setAttribute('src','img/reset.png');
-                    img.setAttribute('title','Reset');
-                    d3.select(img).on('click', function() {
-                        loadData(parameters.ml);
-                        map.fitBounds(geojson.getBounds());
-                    });
-                    return img;
-                };
-                reset.addTo(map);
-                /*** ***/
-
-                /*** Funzione di ricerca del luogo ***/
-                var osmGeocoder = new L.Control.OSMGeocoder(
-                    { 
-                        collapsed: true, 
-                        position: 'topleft',
-                        text: 'Cerca il tuo comune',
-                        bounds: bounds,
-                        email: "info@confiscatibene.it",
-                        callback: function (results) {
-                            if (results.length) {
-                                var bbox = results[0].boundingbox,
-                                    first = new L.LatLng(bbox[0], bbox[2]),
-                                    second = new L.LatLng(bbox[1], bbox[3]),
-                                    bounds = new L.LatLngBounds([first, second]);
-                                delete parameters.i;
-    	    	    	        info.update();
-                                loadData('comuni');
-                                this._map.fitBounds(bounds, {maxZoom:12});
-                            }
-                        }
-                    }
-                );
-                map.addControl(osmGeocoder);
-                osmGeocoder._completely = completely(osmGeocoder._input);
-                osmGeocoder._completely.onChange = function (text) {
-                    osmGeocoder._completely.startFrom = text.lastIndexOf(' ')+1;
-                    osmGeocoder._completely.repaint();
-                };
-                osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
-                d3.json((parameters.t ? 'geo/lista_comuni-'+parameters.t+'.json' : 'geo/lista_comuni.json'), function(err,data) {
-                        defaultGeo['comuni'].list = data;
-                        osmGeocoder._completely.options = defaultGeo['comuni'].list.map(function(el) { return el[geo['comuni'].name]; });
-                });
                 /*** ***/
 
                 /*** Legenda ***/
@@ -524,7 +556,6 @@
     <body>
         <div id="fb-root"></div>
         <div id="map"></div>
-        <a href="https://github.com/Dataninja/confiscatibene-choropleth"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
     </body>
 </html>
 
