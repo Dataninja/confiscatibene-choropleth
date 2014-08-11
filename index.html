@@ -267,13 +267,34 @@
                 /*** ***/
 
                 /*** Pulsante di embed ***/
+                var embedTextArea = L.control({position: 'topright'});
+                embedTextArea.onAdd = function(map) {
+                    var textarea = L.DomUtil.create('textarea', 'embed-textarea'),
+                        iframe = '<iframe src="http://'+location.hostname+Arg.url(parameters)+'" frameborder="0" allowtransparency="true" ' + 
+                            'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' + 
+                            'width="100%" height="520"></iframe>';
+                    textarea.value = iframe;
+                    d3.select(textarea).on('click', function() {
+                        this.select();
+                    });
+                    return textarea;
+                };
+
                 var embed = L.control({position: 'topright'});
                 embed.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'embed');
+                    var img = L.DomUtil.create('img', 'embed'),
+                        added = false;
                     img.setAttribute('src','img/embed.png');
                     img.setAttribute('title','Embed this map');
                     d3.select(img).on('click', function() {
-                        console.log("Show the code!");
+                        if (!added) {
+                            embedTextArea.addTo(map);
+                            embedTextArea.getContainer().select();
+                            added = true;
+                        } else {
+                            embedTextArea.removeFrom(map);
+                            added = false;
+                        }
                     });
                     return img;
                 };
