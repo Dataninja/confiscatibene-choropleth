@@ -25,6 +25,7 @@
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
                     "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css",
                     "js/label/leaflet.label.js", "js/label/leaflet.label.css",
+                    "js/fullscreen/Control.FullScreen.js", "js/fullscreen/Control.FullScreen.css"
                 ])
                 .load("js/completely/complete.ly.1.0.1.js")
                 .load("js/agnes/agnes.js")
@@ -232,6 +233,10 @@
                 info.addTo(map);
                 /*** ***/
 
+                /*** Fullscreen ***/
+                var fullscreen = L.control.fullscreen({title: 'Fullscreen mode'}).addTo(map);
+                /*** ***/
+
                 /*** Logo ***/
                 var logo = L.control({position: 'topleft'});
                 logo.onAdd = function(map) {
@@ -275,22 +280,22 @@
                 embed.addTo(map);
                 /*** ***/
 
-                /*** Fullscreen ***/
-                var fullscreen = L.control({position: 'topright'});
-                fullscreen.onAdd = function(map) {
+                /*** Detach map ***/
+                var detach = L.control({position: 'topright'});
+                detach.onAdd = function(map) {
                     var a = L.DomUtil.create('a',''),
-                        img = L.DomUtil.create('img','fullscreen',a);
-                    a.setAttribute('href','#');
-                    //a.setAttribute('target','_blank');
-                    img.setAttribute('id','fullscreen');
-                    img.setAttribute('src','img/fullscreen.png');
+                        img = L.DomUtil.create('img','detach',a);
+                    a.setAttribute('href',Arg.url(parameters));
+                    a.setAttribute('target','_blank');
+                    a.setAttribute('title','Open in new window');
+                    img.setAttribute('id','detach');
+                    img.setAttribute('src','img/detach.png');
                     d3.select(a).on('click', function () {
-                            console.log("Change href and go!");
-                            this.setAttribute('href','#');
+                            this.setAttribute('href',Arg.url(parameters));
                     });
                     return a;
                 };
-                fullscreen.addTo(map);
+                detach.addTo(map);
                 /*** ***/
 
                 /*** Pulsanti di condivisione ***/

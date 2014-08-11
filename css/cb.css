@@ -246,7 +246,13 @@ div.leaflet-bottom.leaflet-left > * {
 .leaflet-control-geocoder .completely-wrapper {
     display: inline-block;
 }
-img.reset, img.fullscreen, img.embed {
+img.reset, img.detach, img.embed {
     height: 36px;
     cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.25);
+    border-radius: 5px;
+    background-color: white;
+}
+img.reset:hover, img.detach:hover, img.embed:hover {
+    background-color: whitesmoke;
 }
