@@ -12,7 +12,7 @@
         <meta property="og:url" content="http://www.confiscatibene.it" />
         <meta property="og:description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi. Alla sua costruzione e implementazione partecipano giornalisti, attivisti e tecnologi: ognuno di noi mette a disposizione la propria specifica competenza per rispondere ad alcune domande sullo stato e sulla gestione dei beni confiscati in Italia alla criminalità organizzata: Quanti sono? Dove sono? Quanto valgono? Come vengono riutilizzati?" />
         <meta property="og:image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/logocb.png" />
-        <script src="js/head/head.load.min.js"></script>
+        <script src="js/head/head.min.js"></script>
         <script type="text/javascript">
             //var JSTERS = {};
             var MYDEBUG;
@@ -63,6 +63,8 @@
                 parameters.ls = parameters.ls || d3.keys(defaultGeo);
                 parameters.ml = parameters.ls[0];
                 parameters.dl = parameters.fl || parameters.dl || parameters.ml;
+                parameters.md = parameters.md || (head.mobile ? 'mobile' : '');
+                d3.select('body').classed(parameters.md,true);
                 if (parameters.t) {
                     parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
                     parameters.fl = parameters.dl;
@@ -98,24 +100,32 @@
                 /*** ***/
 
                 /*** Gestione dell'infowindow al click ***/
-                var info = L.control({position: 'bottomright'});
-        		info.onAdd = function (map) {
-                    this._div = L.DomUtil.create('div', 'info');
-                    this._div.setAttribute('id','infowindow');
-                    d3.select(this._div)
-                        .on("mouseenter", function() {
-                            map.scrollWheelZoom.disable();
-                        })
-                        .on("mouseleave", function() {
-                            map.scrollWheelZoom.enable();
-                        });
-		        	this.update();
-			        return this._div;
-                };
+                var info;
+                if (parameters.md === 'widget') {
+                    info = {};
+                    info._div = d3.select('body').append('div').attr('id','infowindow').node();
+                } else {
+                    info = L.control({position: 'bottomright'});
+                    info.onAdd = function (map) {
+                        this._div = L.DomUtil.create('div', 'info '+parameters.md);
+                        this._div.setAttribute('id','infowindow');
+                        this._div.setAttribute('style','max-height:'+(head.screen.innerHeight-90)+'px;');
+                        d3.select(this._div)
+                            .on("mouseenter", function() {
+                                map.scrollWheelZoom.disable();
+                            })
+                            .on("mouseleave", function() {
+                                map.scrollWheelZoom.enable();
+                            });
+    		        	this.update();
+	    		        return this._div;
+                    };
+                }
                 info.update = function (props) {
                     var that = this;
                     this._div.innerHTML = '';
                     if (props) {
+                        if (parameters.md === 'mobile') map.dragging.disable();
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
                             stoday = d3.time.format('%Y%m%d')(today),
@@ -227,10 +237,15 @@
                                 return false;
                             });
                     } else {
+                        if (parameters.md === 'mobile') map.dragging.enable();
                         this._div.innerHTML += 'Mouse su un poligono';
                     }
     		    };
-                info.addTo(map);
+                if (parameters.md === 'widget') {
+                    info.update();
+                } else {
+                    info.addTo(map);
+                }
                 /*** ***/
 
                 /*** Fullscreen ***/
@@ -238,23 +253,34 @@
                 /*** ***/
 
                 /*** Logo ***/
-                var logo = L.control({position: 'topleft'});
-                logo.onAdd = function(map) {
-                    var a = L.DomUtil.create('a','logo'),
-                        img = L.DomUtil.create('img','logo',a);
-                    a.setAttribute('href','http://www.confiscatibene.it/');
-                    a.setAttribute('target','_blank');
-                    img.setAttribute('id','logo');
-                    img.setAttribute('src','img/logocb.png');
-                    return a;
-                };
-                logo.addTo(map);
+                var logo;
+                if (parameters.md === 'widget') {
+                    logo = d3.select('body').insert('div','#map').attr('id','logo-widget')
+                        .append('a').classed('logo '+parameters.md, true)
+                        .attr('href','http://www.confiscatibene.it/')
+                        .attr('target','_blank')
+                        .append('img')
+                        .attr('id','logo')
+                        .attr('src','img/logocb.png');
+                } else {
+                    logo = L.control({position: 'topleft'});
+                    logo.onAdd = function(map) {
+                        var a = L.DomUtil.create('a','logo '+parameters.md),
+                            img = L.DomUtil.create('img','logo',a);
+                        a.setAttribute('href','http://www.confiscatibene.it/');
+                        a.setAttribute('target','_blank');
+                        img.setAttribute('id','logo');
+                        img.setAttribute('src','img/logocb.png');
+                        return a;
+                    };
+                    logo.addTo(map);
+                }
                 /*** ***/
 
                 /*** Pulsante di reset ***/
-                var reset = L.control({position: 'topright'});
+                var reset = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
                 reset.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'reset');
+                    var img = L.DomUtil.create('img', 'reset '+parameters.md);
                     img.setAttribute('src','img/reset.png');
                     img.setAttribute('title','Reset');
                     d3.select(img).on('click', function() {
@@ -267,12 +293,15 @@
                 /*** ***/
 
                 /*** Pulsante di embed ***/
-                var embedTextArea = L.control({position: 'topright'});
+                var embedTextArea = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
                 embedTextArea.onAdd = function(map) {
-                    var textarea = L.DomUtil.create('textarea', 'embed-textarea'),
-                        iframe = '<iframe src="http://'+location.hostname+Arg.url(parameters)+'" frameborder="0" allowtransparency="true" ' + 
+                    var textarea = L.DomUtil.create('textarea', 'embed-textarea '+parameters.md),
+                        oldMd = parameters.md;
+                    parameters.md = 'embed';
+                    var iframe = '<iframe src="http://'+location.hostname+Arg.url(parameters)+'" frameborder="0" allowtransparency="true" ' + 
                             'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' + 
-                            'width="100%" height="520"></iframe>';
+                            'width="100%" height="700"></iframe>';
+                    parameters.md = oldMd;
                     textarea.value = iframe;
                     d3.select(textarea).on('click', function() {
                         this.select();
@@ -280,9 +309,9 @@
                     return textarea;
                 };
 
-                var embed = L.control({position: 'topright'});
+                var embed = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
                 embed.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'embed'),
+                    var img = L.DomUtil.create('img', 'embed '+parameters.md),
                         added = false;
                     img.setAttribute('src','img/embed.png');
                     img.setAttribute('title','Embed this map');
@@ -302,45 +331,50 @@
                 /*** ***/
 
                 /*** Detach map ***/
-                var detach = L.control({position: 'topright'});
-                detach.onAdd = function(map) {
-                    var a = L.DomUtil.create('a',''),
-                        img = L.DomUtil.create('img','detach',a);
-                    a.setAttribute('href',Arg.url(parameters));
-                    a.setAttribute('target','_blank');
-                    a.setAttribute('title','Open in new window');
-                    img.setAttribute('id','detach');
-                    img.setAttribute('src','img/detach.png');
-                    d3.select(a).on('click', function () {
+                if (parameters.md === 'embed' || parameters.md === 'widget') {
+                    var detach = L.control({position: 'topright'});
+                    detach.onAdd = function(map) {
+                        var a = L.DomUtil.create('a','detach '+parameters.md),
+                            img = L.DomUtil.create('img','detach',a);
+                        a.setAttribute('href',Arg.url(parameters));
+                        a.setAttribute('target','_blank');
+                        a.setAttribute('title','Open in new window');
+                        img.setAttribute('id','detach');
+                        img.setAttribute('src','img/detach.png');
+                        d3.select(a).on('click', function () {
                             this.setAttribute('href',Arg.url(parameters));
-                    });
-                    return a;
-                };
-                detach.addTo(map);
+                        });
+                        return a;
+                    };
+                    detach.addTo(map);
+                }
                 /*** ***/
 
                 /*** Pulsanti di condivisione ***/
-                var share = L.control({position: 'bottomleft'});
-                share.onAdd = function(map) {
-                    var div = L.DomUtil.create('div','share');
-                    div.setAttribute('id','buttons');
-                    var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://confiscatibene.it/it/mappe/" data-via="confiscatibene" data-lang="it" data-related="confiscatibene" data-hashtags="confiscatibene" data-count="vertical">Tweet</a>';
-                    var facebook = '<div class="fb-like" data-href="http://confiscatibene.it/it/mappe/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
-                    var gplus = '<div class="g-plusone" data-size="tall" data-href="http://confiscatibene.it/it/mappe/" data-annotation="bubble"></div>';
-                    div.innerHTML = twitter + facebook + gplus;
-                    head.load("https://platform.twitter.com/widgets.js")
-                        .load("http://connect.facebook.net/it_IT/sdk.js#xfbml=1&appId=470290923072583&version=v2.0") // appID di Dataninja
-                        .load("https://apis.google.com/js/plusone.js");
-                    return div;
-                };
-                share.addTo(map);
+                if (!parameters.md) {
+                    var share = L.control({position: 'bottomleft'});
+                    share.onAdd = function(map) {
+                        var div = L.DomUtil.create('div','share '+parameters.md);
+                        div.setAttribute('id','buttons');
+                        var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://confiscatibene.it/it/mappe/" data-via="confiscatibene" data-lang="it" data-related="confiscatibene" data-hashtags="confiscatibene" data-count="vertical">Tweet</a>';
+                        var facebook = '<div class="fb-like" data-href="http://confiscatibene.it/it/mappe/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
+                        var gplus = '<div class="g-plusone" data-size="tall" data-href="http://confiscatibene.it/it/mappe/" data-annotation="bubble"></div>';
+                        div.innerHTML = twitter + facebook + gplus;
+                        head.load("https://platform.twitter.com/widgets.js")
+                            .load("http://connect.facebook.net/it_IT/sdk.js#xfbml=1&appId=470290923072583&version=v2.0") // appID di Dataninja
+                            .load("https://apis.google.com/js/plusone.js");
+                        return div;
+                    };
+                    share.addTo(map);
+                }
                 /*** ***/
 
                 /*** Creazione del menù dei livelli ***/
                 var menu = L.control({position: 'topleft'});
                 menu.onAdd = function(map) {
-                    var nav = L.DomUtil.create('nav', 'menu-ui');
+                    var nav = L.DomUtil.create('nav', 'menu-ui '+parameters.md);
                     nav.setAttribute('id','menu-ui');
+                    if (parameters.md === 'widget') nav.setAttribute('style','display:none;');
                     return nav;
                 };
                 menu.addTo(map);
@@ -375,38 +409,40 @@
         		}
 
                 /*** Funzione di ricerca del luogo ***/
-                var osmGeocoder = new L.Control.OSMGeocoder(
-                    { 
-                        collapsed: true, 
-                        position: 'topleft',
-                        text: 'Cerca il tuo comune',
-                        bounds: bounds,
-                        email: "info@confiscatibene.it",
-                        callback: function (results) {
-                            if (results.length) {
-                                var bbox = results[0].boundingbox,
-                                    first = new L.LatLng(bbox[0], bbox[2]),
-                                    second = new L.LatLng(bbox[1], bbox[3]),
-                                    bounds = new L.LatLngBounds([first, second]);
-                                delete parameters.i;
-    	    	    	        info.update();
-                                loadData('comuni');
-                                this._map.fitBounds(bounds, {maxZoom:12});
+                if (parameters.md != 'widget' && parameters.md != 'mobile') {
+                    var osmGeocoder = new L.Control.OSMGeocoder(
+                        { 
+                            collapsed: true, 
+                            position: 'topleft',
+                            text: 'Cerca il tuo comune',
+                            bounds: bounds,
+                            email: "info@confiscatibene.it",
+                            callback: function (results) {
+                                if (results.length) {
+                                    var bbox = results[0].boundingbox,
+                                        first = new L.LatLng(bbox[0], bbox[2]),
+                                        second = new L.LatLng(bbox[1], bbox[3]),
+                                        bounds = new L.LatLngBounds([first, second]);
+                                    delete parameters.i;
+    	    	    	            info.update();
+                                    loadData('comuni');
+                                    this._map.fitBounds(bounds, {maxZoom:12});
+                                }
                             }
                         }
-                    }
-                );
-                map.addControl(osmGeocoder);
-                osmGeocoder._completely = completely(osmGeocoder._input);
-                osmGeocoder._completely.onChange = function (text) {
-                    osmGeocoder._completely.startFrom = text.lastIndexOf(' ')+1;
-                    osmGeocoder._completely.repaint();
-                };
-                osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
-                d3.json((parameters.t ? 'geo/lista_comuni-'+parameters.t+'.json' : 'geo/lista_comuni.json'), function(err,data) {
+                    );
+                    map.addControl(osmGeocoder);
+                    osmGeocoder._completely = completely(osmGeocoder._input);
+                    osmGeocoder._completely.onChange = function (text) {
+                        osmGeocoder._completely.startFrom = text.lastIndexOf(' ')+1;
+                        osmGeocoder._completely.repaint();
+                    };
+                    osmGeocoder._completely.input.maxLength = 50; // limit the max number of characters in the input text 
+                    d3.json((parameters.t ? 'geo/lista_comuni-'+parameters.t+'.json' : 'geo/lista_comuni.json'), function(err,data) {
                         defaultGeo['comuni'].list = data;
                         osmGeocoder._completely.options = defaultGeo['comuni'].list.map(function(el) { return el[geo['comuni'].name]; });
-                });
+                    });
+                }
                 /*** ***/
 
                 /*** Gestione degli eventi ***/
@@ -454,17 +490,19 @@
                 /*** Legenda ***/
     		    var legend = L.control({position: 'bottomleft'});
     	    	legend.onAdd = function (map) {
-                    this._div = L.DomUtil.create('div', 'info legend');
+                    this._div = L.DomUtil.create('div', 'info legend '+parameters.md);
                     this._div.innerHTML = '<h4>Legenda</h4>';
 			        return this._div;
                 };
                 legend.update = function(territorio) {
                     var grades = data[territorio].ranges;
-                    this._div.innerHTML = '<h4>Legenda</h4><br>';
+                    this._div.innerHTML = (parameters.md != 'widget' ? '<h4 title="Numero totale di beni confiscati">Legenda</h4>' : '');
                     for (var i=0; i<grades.length; i++) {
-                        this._div.innerHTML += '<i style="background:' + colorbrewer.Reds[grades.length][i] + '"></i> ' + grades[i] + '<br />';
+                        this._div.innerHTML += '<i title="Tra ' + grades[i].replace("-","e") + ' beni confiscati" style="background:' + 
+                            colorbrewer.Reds[grades.length][i] + '"></i> ' + 
+                            (parameters.md != 'widget' ? grades[i] : '') + '<br>';
                     }
-                    this._div.innerHTML += '<br>Numero totale<br>di beni confiscati';
+                    if (parameters.md != 'widget') this._div.innerHTML += '<br>Numero totale<br>di beni confiscati';
     	    	};
                 legend.addTo(map);
                 /*** ***/

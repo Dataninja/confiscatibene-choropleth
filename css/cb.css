@@ -6,6 +6,15 @@ html, body, #map {
   padding: 0;
 }
 
+body.widget {
+    height: 755px;
+    width: 350px;
+    margin: auto;
+}
+body.widget #map {
+    height: 350px;
+}
+
 .leaflet-sidebar {
   z-index: 1020;
 }
@@ -26,7 +35,7 @@ html, body, #map {
     bottom: 0;
     right: 0;
     margin: 0 !important;
-}
+/}
 
 .leaflet-control-layers label {
   font-weight: normal;
@@ -44,6 +53,9 @@ html, body, #map {
   padding-left: .5em;
 }
 
+body.mobile .leaflet-bottom, body.widget .leaflet-bottom {
+    bottom: 25px;
+}
 .leaflet-bottom .leaflet-control {
     margin-bottom: 10px;
 }
@@ -187,9 +199,21 @@ div.leaflet-bottom.leaflet-left > * {
 .info a.ssb img, .info a.dnl img, .info a#close-cross img {
     width: 20px;
 }
+body.widget #infowindow {
+    height: 350px;
+    max-height: 350px;
+    width: 100%;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
 #logo {
     height: 55px;
+}
+#logo-widget {
+    width: 100%;
+    text-align: center;
 }
 .legend {
 	text-align: left;
@@ -202,6 +226,9 @@ div.leaflet-bottom.leaflet-left > * {
 	float: left;
 	margin-right: 8px;
 	opacity: 0.7;
+}
+.legend.widget i {
+    margin-right: 0;
 }
 .menu-ui {
 	background:#fff;
@@ -219,6 +246,9 @@ div.leaflet-bottom.leaflet-left > * {
 	text-decoration:none;
 	border-bottom:1px solid rgba(0,0,0,0.25);
 	text-align:center;
+}
+.menu-ui.mobile a {
+    padding:5px;
 }
 .menu-ui a.disabled {
     color: #b0b0b0;
@@ -273,4 +303,7 @@ textarea.embed-textarea {
     padding: 5px;
     background: whitesmoke;
     border-radius: 5px;
+}
+textarea.embed-textarea.mobile {
+    width: 75%;
 }
