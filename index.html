@@ -31,7 +31,7 @@
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
                 .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
-                .load("css/cb.css", "css/table.css");
+                .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
                 var apiPath = '/api/confiscatibene/action/datastore/search.json';
@@ -82,7 +82,7 @@
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
-                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: true });
+                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: true, attributionControl: false });
         	    var southWest = L.latLng(37.118,6.877),
                     northEast = L.latLng(46.826,18.611),
                 	bounds = L.latLngBounds(southWest, northEast);
@@ -90,20 +90,21 @@
                 L.tileLayer (
 	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
                     {
-                        attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a> | ' + 
-                        'Icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a> | ' + 
-                        'Fork me on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>',
-                		opacity: .7
+                        attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a>', 
+                		opacity: 0.7
 		            }
                 ).addTo(map);
                 map.spin(true);
+                var attrib = L.control.attribution().addTo(map);
+                attrib.addAttribution('icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>');
+                attrib.addAttribution('code on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>.');
                 /*** ***/
 
                 /*** Gestione dell'infowindow al click ***/
                 var info;
                 if (parameters.md === 'widget') {
                     info = {};
-                    info._div = d3.select('body').append('div').attr('id','infowindow').node();
+                    info._div = d3.select('body').append('div').attr('id','infowindow').classed("info", true).node();
                 } else {
                     info = L.control({position: 'bottomright'});
                     info.onAdd = function (map) {
@@ -175,7 +176,7 @@
                             '</thead>' + 
                             '<tfoot>' + 
                             '<tr><td colspan="2" style="text-align:right;font-size: smaller;">' + 
-                            'Creative Commons Attribution <a href="http://creativecommons.org/licenses/by/3.0/it/" target="_blank">CC-BY 3.0 Italia</a>' + 
+                            'Creative Commons Attribution <a href="http://creativecommons.org/licenses/by/3.0/it/" target="_blank">CC-BY 3.0 Italia</a>.' + 
                             '</td></tr>' + 
                             '</tfoot>' + 
                             '<tbody>';
@@ -491,7 +492,7 @@
     		    var legend = L.control({position: 'bottomleft'});
     	    	legend.onAdd = function (map) {
                     this._div = L.DomUtil.create('div', 'info legend '+parameters.md);
-                    this._div.innerHTML = '<h4>Legenda</h4>';
+                    this._div.innerHTML = (parameters.md != 'widget' ? '<h4>Legenda</h4>' : '');
 			        return this._div;
                 };
                 legend.update = function(territorio) {
