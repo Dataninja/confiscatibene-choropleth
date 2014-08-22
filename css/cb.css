@@ -143,6 +143,7 @@ html, body, #map {
 
 .leaflet-bottom .leaflet-control {
     margin-bottom: 0;
+    vertical-align: bottom;
 }
 
 .leaflet-top {
@@ -151,29 +152,19 @@ html, body, #map {
 
 .leaflet-top .leaflet-control {
     margin-top: 0;
-}
-
-.leaflet-top > *, 
-.leaflet-bottom > * { 
-    display: inline-block;
-}
-
-.leaflet-top.leaflet-left > *, 
-.leaflet-bottom.leaflet-left > * {
-    text-align: left;
-}
-
-.leaflet-bottom.leaflet-right > *, 
-.leaflet-top.leaflet-right > * {
-    text-align: right;
-}
-
-.leaflet-top > * {
     vertical-align: middle;
 }
 
-.leaflet-bottom > * {
-    vertical-align: bottom;
+.leaflet-control { 
+    display: inline-block;
+}
+
+.leaflet-left {
+    text-align: left;
+}
+
+.leaflet-right {
+    text-align: right;
 }
 
 /* Attribution */
@@ -186,12 +177,6 @@ html, body, #map {
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
-}
-
-/* Table */
-
-.table {
-  margin-bottom: 0px;
 }
 
 /* Menu */
@@ -272,6 +257,11 @@ p {
     overflow-x: hidden;
     overflow-y: auto;
     max-height: 350px;
+    text-align: left;
+}
+
+.info.closed {
+    max-width: 33%;
 }
 
 .info h4 {
@@ -283,6 +273,10 @@ p {
 .info a.dnl img, 
 .info a#close-cross img {
     width: 20px;
+}
+
+.table {
+  margin-bottom: 0px;
 }
 
 /* Logo */

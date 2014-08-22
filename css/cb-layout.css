@@ -62,11 +62,11 @@ body.widget .leaflet-control-attribution {
     max-width: 80%;
 }
 
-.leaflet-bottom.leaflet-right {
+body.widget .leaflet-bottom.leaflet-right {
     bottom: 0;
 }
 
-.leaflet-bottom.leaflet-left {
+body.widget .leaflet-bottom.leaflet-left {
     bottom: 1em;
 }
 

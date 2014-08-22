@@ -126,6 +126,7 @@
                     var that = this;
                     this._div.innerHTML = '';
                     if (props) {
+                        d3.select(this._div).classed("closed", false);
                         if (parameters.md === 'mobile') map.dragging.disable();
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
@@ -238,8 +239,15 @@
                                 return false;
                             });
                     } else {
+                        d3.select(this._div).classed("closed", true);
                         if (parameters.md === 'mobile') map.dragging.enable();
-                        this._div.innerHTML += 'Mouse su un poligono';
+                        this._div.innerHTML += '' + 
+                            'La mappa mostra il numero di beni confiscati per ogni territorio mediante un gradiente di colore più o meno scuro, mostrato nella legenda in basso a sinistra. ' + 
+                            'Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli amministrativi (regioni, province, comuni). ' +
+                            'La lente permette di cercare un comune per nome, zoomare su di esso e leggere i dettagli dei beni che vi si trovano. ' + 
+                            'Cliccando su un territorio si apre la finestra di dettaglio con tutte le informazioni sui beni presenti e la possibilità di scaricarne la lista completa. ' + 
+                            'I pulsanti in alto a destra permettono di resettare la mappa e visualizzare il codice di embed per includerla in una qualsiasi pagina web. ' + 
+                            'I dati sono quelli ufficiali dell\'<a href="www.benisequestraticonfiscati.it" target="_blank">ANBSC</a>, sono esclusi i beni non confiscati in via autonoma.';
                     }
     		    };
                 if (parameters.md === 'widget') {
