@@ -74,4 +74,13 @@ body.widget .leaflet-bottom.leaflet-left {
     bottom: 1em;
 }
 
+body.widget .leaflet-bar a, 
+body.widget .leaflet-bar a:hover {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+}
 
+body.widget .leaflet-control-zoom-out {
+    font-size: 16px;
+}
