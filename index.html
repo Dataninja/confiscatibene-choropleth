@@ -90,12 +90,13 @@
                 L.tileLayer (
 	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
                     {
-                        attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a>', 
                 		opacity: 0.7
 		            }
                 ).addTo(map);
                 map.spin(true);
                 var attrib = L.control.attribution().addTo(map);
+                attrib.addAttribution('Powered by <a href="http://www.dataninja.it/" target="_blank">Dataninja</a>');
+                attrib.addAttribution('acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a>');
                 attrib.addAttribution('icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>');
                 attrib.addAttribution('geocoding performed by <a href="http://wiki.openstreetmap.org/wiki/Nominatim" target="_blank">OSM Nominatim</a> service');
                 attrib.addAttribution('code on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>.');
