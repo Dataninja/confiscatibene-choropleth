@@ -22,6 +22,10 @@ body.widget #infowindow {
     padding: 0;
 }
 
+body.widget .info.closed {
+    max-width: none;
+}
+
 body.widget #logo-widget {
     text-align: center;
 }

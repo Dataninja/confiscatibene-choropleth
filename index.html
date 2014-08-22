@@ -97,6 +97,7 @@
                 map.spin(true);
                 var attrib = L.control.attribution().addTo(map);
                 attrib.addAttribution('icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>');
+                attrib.addAttribution('geocoding performed by <a href="http://wiki.openstreetmap.org/wiki/Nominatim" target="_blank">OSM Nominatim</a> service');
                 attrib.addAttribution('code on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>.');
                 /*** ***/
 
@@ -241,13 +242,14 @@
                     } else {
                         d3.select(this._div).classed("closed", true);
                         if (parameters.md === 'mobile') map.dragging.enable();
-                        this._div.innerHTML += '' + 
+                        this._div.innerHTML += '<p>' + 
                             'La mappa mostra il numero di beni confiscati per ogni territorio mediante un gradiente di colore più o meno scuro, mostrato nella legenda in basso a sinistra. ' + 
                             'Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli amministrativi (regioni, province, comuni). ' +
                             'La lente permette di cercare un comune per nome, zoomare su di esso e leggere i dettagli dei beni che vi si trovano. ' + 
                             'Cliccando su un territorio si apre la finestra di dettaglio con tutte le informazioni sui beni presenti e la possibilità di scaricarne la lista completa. ' + 
                             'I pulsanti in alto a destra permettono di resettare la mappa e visualizzare il codice di embed per includerla in una qualsiasi pagina web. ' + 
-                            'I dati sono quelli ufficiali dell\'<a href="www.benisequestraticonfiscati.it" target="_blank">ANBSC</a>, sono esclusi i beni non confiscati in via autonoma.';
+                            'I dati sono quelli ufficiali dell\'<a href="www.benisequestraticonfiscati.it" target="_blank">ANBSC</a>, sono esclusi i beni non confiscati in via autonoma.' + 
+                            '</p>';
                     }
     		    };
                 if (parameters.md === 'widget') {
