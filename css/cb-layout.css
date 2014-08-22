@@ -1,6 +1,7 @@
 body.widget {
     height: 755px;
-    width: 350px;
+    width: 100%;
+    max-width: 350px;
     margin: auto;
 }
 
