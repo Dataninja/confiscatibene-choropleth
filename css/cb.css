@@ -316,12 +316,10 @@ img.embed: hover {
 
 .embed-inputarea {
     display: block;
-    border: 1px solid rgba(0,0,0,0.25);
     color: #404040;
     padding: 0px 15px;
-    background: whitesmoke;
-    border-radius: 5px;
     margin-top: 1em !important;
+    text-align: right;
 }
 
 
