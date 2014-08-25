@@ -308,6 +308,10 @@ img.embed {
     background-color: white;
 }
 
+a.detach {
+    margin-top: 5px !important;
+}
+
 img.reset: hover, 
 img.detach: hover, 
 img.embed: hover {
