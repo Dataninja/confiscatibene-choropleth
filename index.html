@@ -31,6 +31,7 @@
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
                 .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
+                .load("js/html2canvas/html2canvas.js")
                 .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
@@ -340,6 +341,39 @@
                     return img;
                 };
                 embed.addTo(map);
+                /*** ***/
+
+                /*** Screenshot map ***/
+                var screenshotContainer = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                screenshotContainer.onAdd = function(map) {
+                    return L.DomUtil.create('div', 'screenshot-container '+parameters.md);
+                };
+
+                var screenshot = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                screenshot.onAdd = function(map) {
+                    var img = L.DomUtil.create('img','screenshot '+parameters.md),
+                        added = false;
+                    img.setAttribute('id','screenshot');
+                    img.setAttribute('src','img/screenshot.png');
+                    img.setAttribute('title','Take a screenshot');
+                    d3.select(img).on('click', function () {
+                        if (!added) {
+                            html2canvas(document.body, {
+                                    onrendered: function(canvas) {
+                                    canvas.setAttribute("title","Tasto destro -> Salva immagine con nome...");
+                                    screenshotContainer.addTo(map).getContainer().appendChild(canvas);
+                                    added = true;
+                                },
+                                logging: true
+                            });
+                        } else {
+                            screenshotContainer.removeFrom(map);
+                            added = false;
+                        }
+                    });
+                    return img;
+                };
+                screenshot.addTo(map);
                 /*** ***/
 
                 /*** Detach map ***/
