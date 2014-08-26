@@ -30,11 +30,14 @@
                 .load("js/completely/complete.ly.1.0.1.js")
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
-                .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
+                .load("js/filesaver/Blob.js", "js/filesaver/canvas-toBlob.js", "js/filesaver/FileSaver.js")
+                .load("js/canvg/rgbcolor.js", "js/canvg/StackBlur.js", "js/canvg/canvg.js")
+                .load("js/html2canvas/html2canvas.js")
                 .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
-                var apiPath = '/api/confiscatibene/action/datastore/search.json';
+                var apiPath = '/api/confiscatibene/action/datastore/search.json',
+                    svgViewBox;
                 
                 /*** Gestione dei dati ***/
                 var defaultGeo = {
@@ -87,8 +90,10 @@
                     northEast = L.latLng(46.826,18.611),
                 	bounds = L.latLngBounds(southWest, northEast);
                 map.fitBounds(bounds);
+
                 L.tileLayer (
-	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
+	    	        //'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
+	    	        '/api/geoiq/{s}/{z}/{x}/{y}.png',
                     {
                 		opacity: 0.7
 		            }
@@ -392,6 +397,31 @@
                 embed.addTo(map);
                 /*** ***/
 
+                /*** Screenshot map ***/
+                if (parameters.md != 'widget') {
+                    var screenshot = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                    screenshot.onAdd = function(map) {
+                        var img = L.DomUtil.create('img','screenshot '+parameters.md);
+                        img.setAttribute('id','screenshot');
+                        img.setAttribute('src','img/screenshot.png');
+                        img.setAttribute('title','Take a screenshot');
+                        d3.select(img).on('click', function () {
+                            html2canvas(document.body, {
+                                onrendered: function(canvas) {
+                                    var svg = d3.select(".leaflet-overlay-pane svg");
+                                    canvg(canvas, svg.node().outerHTML, {ignoreMouse: true, ignoreAnimation: true, ignoreDimensions: true, ignoreClear: true, offsetX: svgViewBox[0], offsetY: svgViewBox[1]});
+                                    canvas.toBlob(function(blob) {
+                                        saveAs(blob,"confiscatibene_map.png");
+                                    });
+                                }
+                            });
+                        });
+                        return img;
+                    };
+                    screenshot.addTo(map);
+                }
+                /*** ***/
+
                 /*** Detach map ***/
                 if (parameters.md === 'embed' || parameters.md === 'widget') {
                     var detach = L.control({position: 'topright'});
@@ -651,6 +681,7 @@
                                 joinData(territorio);
                                 binData(territorio);
 	        	    	        geojson.addData(geo[territorio].resource);
+                                if (!svgViewBox) svgViewBox = d3.select(".leaflet-overlay-pane svg").attr("viewBox").split(" ");
                                 if (parameters.t) { map.fitBounds(geojson.getBounds()); }
                                 if (parameters.i) {
                                     geojson.eachLayer(function(l) { 

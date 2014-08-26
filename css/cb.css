@@ -300,7 +300,8 @@ html, body, #map {
 
 img.reset, 
 img.detach, 
-img.embed {
+img.embed,
+img.screenshot {
     height: 36px;
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.25);
@@ -314,7 +315,8 @@ a.detach {
 
 img.reset: hover, 
 img.detach: hover, 
-img.embed: hover {
+img.embed: hover,
+img.screenshot: hover {
     background-color: whitesmoke;
 }
 
@@ -340,6 +342,14 @@ img.embed: hover {
     cursor: pointer;
 }
 
+.screenshot-container {
+    display: block;
+    margin-top: 1em !important;
+}
+
+.screenshot-container canvas {
+    width: 30%;
+}
 
 /*** Sharing buttons ***/
 
