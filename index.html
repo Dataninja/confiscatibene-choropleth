@@ -348,26 +348,28 @@
                 /*** ***/
 
                 /*** Screenshot map ***/
-                var screenshot = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
-                screenshot.onAdd = function(map) {
-                    var img = L.DomUtil.create('img','screenshot '+parameters.md);
-                    img.setAttribute('id','screenshot');
-                    img.setAttribute('src','img/screenshot.png');
-                    img.setAttribute('title','Take a screenshot');
-                    d3.select(img).on('click', function () {
-                        html2canvas(document.body, {
-                            onrendered: function(canvas) {
-                                var svg = d3.select(".leaflet-overlay-pane svg");
-                                canvg(canvas, svg.node().outerHTML, {ignoreMouse: true, ignoreAnimation: true, ignoreDimensions: true, ignoreClear: true, offsetX: svgViewBox[0], offsetY: svgViewBox[1]});
-                                canvas.toBlob(function(blob) {
-                                    saveAs(blob,"confiscatibene_map.png");
-                                });
-                            }
+                if (parameters.md != 'widget') {
+                    var screenshot = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                    screenshot.onAdd = function(map) {
+                        var img = L.DomUtil.create('img','screenshot '+parameters.md);
+                        img.setAttribute('id','screenshot');
+                        img.setAttribute('src','img/screenshot.png');
+                        img.setAttribute('title','Take a screenshot');
+                        d3.select(img).on('click', function () {
+                            html2canvas(document.body, {
+                                onrendered: function(canvas) {
+                                    var svg = d3.select(".leaflet-overlay-pane svg");
+                                    canvg(canvas, svg.node().outerHTML, {ignoreMouse: true, ignoreAnimation: true, ignoreDimensions: true, ignoreClear: true, offsetX: svgViewBox[0], offsetY: svgViewBox[1]});
+                                    canvas.toBlob(function(blob) {
+                                        saveAs(blob,"confiscatibene_map.png");
+                                    });
+                                }
+                            });
                         });
-                    });
-                    return img;
-                };
-                screenshot.addTo(map);
+                        return img;
+                    };
+                    screenshot.addTo(map);
+                }
                 /*** ***/
 
                 /*** Detach map ***/
