@@ -322,6 +322,20 @@ img.embed: hover {
     text-align: right;
 }
 
+.embed-inputarea .svg > * {
+    vertical-align: middle;
+}
+
+.embed-inputarea .svg textarea {
+    height: 3em;
+    width: 7em;
+}
+
+.embed-inputarea .svg img {
+    height: 4em;
+    cursor: pointer;
+}
+
 
 /*** Sharing buttons ***/
 

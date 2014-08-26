@@ -314,10 +314,11 @@
 
                     var inputarea = L.DomUtil.create('div', 'info embed-inputarea');
 
-                    p['permalink'] = L.DomUtil.create('p', '', inputarea);
-                    p['iframe'] = L.DomUtil.create('p', '', inputarea);
-                    p['widget'] = L.DomUtil.create('p', '', inputarea);
-                    p['shortcode'] = L.DomUtil.create('p', '', inputarea);
+                    p['permalink'] = L.DomUtil.create('p', 'permalink', inputarea);
+                    p['iframe'] = L.DomUtil.create('p', 'iframe', inputarea);
+                    p['widget'] = L.DomUtil.create('p', 'widget', inputarea);
+                    p['shortcode'] = L.DomUtil.create('p', 'shortcode', inputarea);
+                    p['svg'] = L.DomUtil.create('p', 'svg', inputarea);
 
                     p['permalink'].innerHTML = '' + 
                         '<label for="embed-permalink" title="Clicca per selezionare">Permalink:</label>&nbsp;' + 
@@ -325,7 +326,7 @@
                     
                     parameters.md = 'embed';
                     p['iframe'].innerHTML = '' + 
-                        '<label for="embed-iframe" title="Clicca per selezionare">Embed:</label>&nbsp;' + 
+                        '<label for="embed-iframe" title="Clicca per selezionare">Embed in post/page:</label>&nbsp;' + 
                         '<input type="text" id="embed-iframe" value="' + 
                         '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
@@ -334,7 +335,7 @@
                     
                     parameters.md = 'widget';
                     p['widget'].innerHTML = '' + 
-                        '<label for="embed-widget" title="Clicca per selezionare">Widget:</label>&nbsp;' + 
+                        '<label for="embed-widget" title="Clicca per selezionare">Embed in sidebar:</label>&nbsp;' + 
                         '<input type="text" id="embed-widget" value="' + 
                         '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
@@ -349,11 +350,24 @@
                         '"></input>';
                     
                     parameters.md = oldMd;
+                    p['svg'].innerHTML = '' + 
+                        '<label for="embed-svg" title="Copia/incolla il codice o scaricalo cliccando sull\'immagine">Scalable Vector Graphics:</label>&nbsp;' +
+                        '<textarea id="embed-svg">' +
+                        d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n") + 
+                        '</textarea>&nbsp;' + 
+                        '<img src="img/svg.png" title="Scarica l\'immagine in SVG">';
+
                     for (var k in p) {
                         if (p.hasOwnProperty(k)) {
                             d3.select(p[k]).select('input').on('focus', function() { this.select(); });
                         }
                     }
+
+                    d3.select(p['svg']).select("img").on("click", function() {
+                        var blob = new Blob([d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n")], {type: "image/svg+xml;charset=utf-8"}),
+                            filename = 'confiscatibene_map.svg';
+                        saveAs(blob, filename);
+                    });
                     
                     return inputarea;
                 };
