@@ -318,18 +318,26 @@ img.embed: hover {
     background-color: whitesmoke;
 }
 
-textarea.embed-textarea {
+.embed-inputarea {
     display: block;
-    width: 30em;
-    max-width: 75%;
-    height: 5em;
-    max-height: 10em;
-    resize: vertical;
-    border: 1px solid rgba(0,0,0,0.25);
     color: #404040;
-    padding: 5px;
-    background: whitesmoke;
-    border-radius: 5px;
+    padding: 0px 15px;
+    margin-top: 1em !important;
+    text-align: right;
+}
+
+.embed-inputarea .svg > * {
+    vertical-align: middle;
+}
+
+.embed-inputarea .svg textarea {
+    height: 3em;
+    width: 7em;
+}
+
+.embed-inputarea .svg img {
+    height: 4em;
+    cursor: pointer;
 }
 
 

@@ -142,24 +142,24 @@
                         var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name];
                         var buttons = [
                             '<a class="ssb" href="http://twitter.com/share?url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters).replace(/md=[^&]+&*/,'')) + 
+                                encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + 
                                 '&text=' + encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene") + 
                                 '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
                             '<a class="ssb" href="http://www.facebook.com/sharer.php?u=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters).replace(/md=[^&]+&*/,'')) + 
+                                encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + 
                                 '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
                             '<a class="ssb" href="https://plus.google.com/share?url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters).replace(/md=[^&]+&*/,'')) + 
+                                encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + 
                                 '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
                             '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters).replace(/md=[^&]+&*/,'')) + 
+                                encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + 
                                 '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
                             '<a class="ssb" href="mailto:?Subject=Confiscati Bene a ' + 
                                 encodeURIComponent(props[geo[territorio].name]) + 
                                 '&Body=Gli immobili e le aziende %23confiscatibene di ' + 
                                 encodeURIComponent(props[geo[territorio].name]) + 
                                 ': http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters).replace(/md=[^&]+&*/,'')) + 
+                                encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + 
                                 '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>'
                         ];
 
@@ -305,20 +305,71 @@
                 /*** ***/
 
                 /*** Pulsante di embed ***/
-                var embedTextArea = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
-                embedTextArea.onAdd = function(map) {
-                    var textarea = L.DomUtil.create('textarea', 'embed-textarea '+parameters.md),
+                var embedControl = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                embedControl.onAdd = function(map) {
+                    var textinput = {},
+                        p = {},
+                        label = {},
                         oldMd = parameters.md;
+
+                    var inputarea = L.DomUtil.create('div', 'info embed-inputarea');
+
+                    p['permalink'] = L.DomUtil.create('p', 'permalink', inputarea);
+                    p['iframe'] = L.DomUtil.create('p', 'iframe', inputarea);
+                    p['widget'] = L.DomUtil.create('p', 'widget', inputarea);
+                    p['shortcode'] = L.DomUtil.create('p', 'shortcode', inputarea);
+                    p['svg'] = L.DomUtil.create('p', 'svg', inputarea);
+
+                    p['permalink'].innerHTML = '' + 
+                        '<label for="embed-permalink" title="Clicca per selezionare">Permalink:</label>&nbsp;' + 
+                        '<input type="text" id="embed-permalink" value="http://' + location.hostname + decodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*&*/,'')) + '"></input>';
+                    
                     parameters.md = 'embed';
-                    var iframe = '<iframe src="http://'+location.hostname+Arg.url(parameters)+'" frameborder="0" allowtransparency="true" ' + 
-                            'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' + 
-                            'width="100%" height="700"></iframe>';
+                    p['iframe'].innerHTML = '' + 
+                        '<label for="embed-iframe" title="Clicca per selezionare">Embed in post/page:</label>&nbsp;' + 
+                        '<input type="text" id="embed-iframe" value="' + 
+                        '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
+                        'width=&quot;100%&quot; height=&quot;700&quot;></iframe>' + 
+                        '"></input>';
+                    
+                    parameters.md = 'widget';
+                    p['widget'].innerHTML = '' + 
+                        '<label for="embed-widget" title="Clicca per selezionare">Embed in sidebar:</label>&nbsp;' + 
+                        '<input type="text" id="embed-widget" value="' + 
+                        '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
+                        'width=&quot;100%&quot; height=&quot;755&quot;></iframe>' + 
+                        '"></input>';
+
+                    parameters.md = 'embed';
+                    p['shortcode'].innerHTML = '' + 
+                        '<label for="embed-shortcode" title="Clicca per selezionare">WP Shortcode (<a href="https://github.com/Dataninja/wp-cbmap-shortcode" target="_blank">?</a>):</label>&nbsp;' +
+                        '<input type="text" id="embed-shortcode" value="' +
+                        '[cbmap ' + decodeURIComponent(Arg.url(parameters).replace(/^[^?]+\?/,"").replace(/&/g," ")) + ']' + 
+                        '"></input>';
+                    
                     parameters.md = oldMd;
-                    textarea.value = iframe;
-                    d3.select(textarea).on('click', function() {
-                        this.select();
+                    p['svg'].innerHTML = '' + 
+                        '<label for="embed-svg" title="Copia/incolla il codice o scaricalo cliccando sull\'immagine">Scalable Vector Graphics:</label>&nbsp;' +
+                        '<textarea id="embed-svg">' +
+                        d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n") + 
+                        '</textarea>&nbsp;' + 
+                        '<img src="img/svg.png" title="Scarica l\'immagine in SVG">';
+
+                    for (var k in p) {
+                        if (p.hasOwnProperty(k)) {
+                            d3.select(p[k]).select('input').on('focus', function() { this.select(); });
+                        }
+                    }
+
+                    d3.select(p['svg']).select("img").on("click", function() {
+                        var blob = new Blob([d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n")], {type: "image/svg+xml;charset=utf-8"}),
+                            filename = 'confiscatibene_map.svg';
+                        saveAs(blob, filename);
                     });
-                    return textarea;
+                    
+                    return inputarea;
                 };
 
                 var embed = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
@@ -329,11 +380,10 @@
                     img.setAttribute('title','Embed this map');
                     d3.select(img).on('click', function() {
                         if (!added) {
-                            embedTextArea.addTo(map);
-                            embedTextArea.getContainer().select();
+                            embedControl.addTo(map);
                             added = true;
                         } else {
-                            embedTextArea.removeFrom(map);
+                            embedControl.removeFrom(map);
                             added = false;
                         }
                     });
@@ -348,13 +398,13 @@
                     detach.onAdd = function(map) {
                         var a = L.DomUtil.create('a','detach '+parameters.md),
                             img = L.DomUtil.create('img','detach',a);
-                        a.setAttribute('href',Arg.url(parameters).replace(/md=[^&]+&*/,''));
+                        a.setAttribute('href',Arg.url(parameters).replace(/&*md=[^&]*&*/,''));
                         a.setAttribute('target','_blank');
                         a.setAttribute('title','Open in new window');
                         img.setAttribute('id','detach');
                         img.setAttribute('src','img/detach.png');
                         d3.select(a).on('click', function () {
-                            this.setAttribute('href',Arg.url(parameters).replace(/md=[^&]+&*/,''));
+                            this.setAttribute('href',Arg.url(parameters).replace(/&*md=[^&]*&*/,''));
                         });
                         return a;
                     };
