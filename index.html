@@ -65,7 +65,6 @@
                     }
                 */
                 var parameters = Arg.query(); // Parsing dei parametri dell'URL
-                console.log("uno", JSON.stringify(parameters));
                 parameters.ls = parameters.ls || d3.keys(defaultGeo); // Livelli caricati (default: tutti)
                 parameters.ml = parameters.ls[0]; // Livello caricato più alto (PRIVATO)
                 parameters.dl = parameters.dl || parameters.ml; // Livello visibile al caricamento
@@ -86,7 +85,6 @@
                         data[parameters.ls[i]] = defaultData[parameters.ls[i]];
                     }
                 }
-                console.log("due", JSON.stringify(parameters));
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
@@ -494,7 +492,7 @@
                 function getColor(d, bins) {
                     for (var i=1; i<bins.length; i++) {
                         if (d <= bins[i]) {
-                            return colorbrewer.Reds[bins.length-1][i-1];
+                            return (colorbrewer.Reds[bins.length-1] ? colorbrewer.Reds[bins.length-1][i-1] : colorbrewer.Reds[3][i-1]);
                         }
                     }
                 }
@@ -598,8 +596,9 @@
                     var grades = data[territorio].ranges;
                     this._div.innerHTML = (parameters.md != 'widget' ? '<h4 title="Numero totale di beni confiscati">Legenda</h4>' : '');
                     for (var i=0; i<grades.length; i++) {
+                        var color = (colorbrewer.Reds[grades.length] ? colorbrewer.Reds[grades.length][i] : colorbrewer.Reds[3][i]);
                         this._div.innerHTML += '<i title="Tra ' + grades[i].replace("-","e") + ' beni confiscati" style="background:' + 
-                            colorbrewer.Reds[grades.length][i] + '"></i> ' + 
+                            color + '"></i> ' + 
                             (parameters.md != 'widget' ? grades[i] : '') + '<br>';
                     }
                     if (parameters.md != 'widget') this._div.innerHTML += '<br>Numero totale<br>di beni confiscati';
