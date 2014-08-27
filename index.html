@@ -55,33 +55,38 @@
                 // Parametri dell'URL
                 /* ie. http://viz.confiscatibene.it/anbsc/choropleth/?ls[0]=regioni&ls[1]=province&ls[2]=comuni&dl=regioni&t=1
                     {
-                        ls: Array(), // Livelli caricati: regioni, province, comuni
-                        dl: [string], // Livello mostrato al caricamento (e a cui eventualmente si riferisce t)
-                        t: [int], // Codice istat del territorio centrato e con infowindow aperta
-                        i: [int] // Codice istat del territorio con infowindow aperta
+                        ls: Array(), // Livelli caricati: regioni, province, comuni (default: tutti) -- LAYERS
+                        md: [string], // Layout di visualizzazione: full (default), embed, mobile (auto se su mobile), widget -- MODE
+                        dl: [string], // Livello mostrato al caricamento -- DEFAULT LAYER
+                        ml: [string], // Livello caricato più alto: regioni, province, comuni -- MAX LAYER
+                        tl: [string], // Livello a cui si riferisce t -- TERRITORY LAYER
+                        t: [int], // Codice istat del territorio centrato e con infowindow aperta (si riferisce a tl) -- TERRITORY
+                        i: [int] // Codice istat del territorio con infowindow aperta -- INFO
                     }
                 */
-                var parameters = Arg.query();
-                //console.log(parameters);
-                parameters.ls = parameters.ls || d3.keys(defaultGeo);
-                parameters.ml = parameters.ls[0];
-                parameters.dl = parameters.fl || parameters.dl || parameters.ml;
-                parameters.md = parameters.md || (head.mobile ? 'mobile' : '');
-                d3.select('body').classed(parameters.md,true);
-                if (parameters.t) {
-                    parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
-                    parameters.fl = parameters.dl;
-                    parameters.dl = parameters.ml = parameters.ls[0];
+                var parameters = Arg.query(); // Parsing dei parametri dell'URL
+                console.log("uno", JSON.stringify(parameters));
+                parameters.ls = parameters.ls || d3.keys(defaultGeo); // Livelli caricati (default: tutti)
+                parameters.ml = parameters.ls[0]; // Livello caricato più alto (PRIVATO)
+                parameters.dl = parameters.dl || parameters.ml; // Livello visibile al caricamento
+                parameters.md = parameters.md || (head.mobile ? 'mobile' : ''); // Layout
+                d3.select('body').classed(parameters.md,true); // Tengo traccia del layout come classe del body
+                if (parameters.t) { // Focus su un territorio (codice istat che si riferisce a tl)
+                    parameters.tl = parameters.tl || parameters.ml; // Livello a cui si riferisce t
+                    parameters.ml = parameters.ls[parameters.ls.indexOf(parameters.tl)+1]; // Si riferisce ora al livello più alto caricato
+                    if (parameters.ls.indexOf(parameters.dl) < parameters.ls.indexOf(parameters.tl)+1) {
+                        parameters.dl = parameters.ml;
+                    }
                 }
                 
                 // Livelli disponibili da parametri dell'URL
-                for (var i=0; i<parameters.ls.length; i++) {
+                for (var i=parameters.ls.indexOf(parameters.ml); i<parameters.ls.length; i++) {
                     if (defaultGeo.hasOwnProperty(parameters.ls[i]) && defaultData.hasOwnProperty(parameters.ls[i])) {
                         geo[parameters.ls[i]] = defaultGeo[parameters.ls[i]];
                         data[parameters.ls[i]] = defaultData[parameters.ls[i]];
                     }
                 }
-                if (parameters.t) { parameters.ls.unshift(parameters.fl); }
+                console.log("due", JSON.stringify(parameters));
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
@@ -242,6 +247,7 @@
                             .on("click", function() {
                                 geojson.eachLayer(function(l) { l.highlight = false; geojson.resetStyle(l); });
                                 delete parameters.i;
+                                if (embedControl.isAdded) embedControl.removeFrom(map);
                                 info.update();
                                 return false;
                             });
@@ -311,7 +317,10 @@
 
                 /*** Pulsante di embed ***/
                 var embedControl = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                embedControl.isAdded = false;
+                embedControl.onRemove = function(map) { this.isAdded = false; }
                 embedControl.onAdd = function(map) {
+                    this.isAdded = true;
                     var textinput = {},
                         p = {},
                         label = {},
@@ -379,17 +388,14 @@
 
                 var embed = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
                 embed.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'embed '+parameters.md),
-                        added = false;
+                    var img = L.DomUtil.create('img', 'embed '+parameters.md);
                     img.setAttribute('src','img/embed.png');
                     img.setAttribute('title','Embed this map');
                     d3.select(img).on('click', function() {
-                        if (!added) {
+                        if (!embedControl.isAdded) {
                             embedControl.addTo(map);
-                            added = true;
                         } else {
-                            embedControl.removeFrom(map);
-                            added = false;
+                            if (embedControl.isAdded) embedControl.removeFrom(map);
                         }
                     });
                     return img;
@@ -516,6 +522,7 @@
                                         second = new L.LatLng(bbox[1], bbox[3]),
                                         bounds = new L.LatLngBounds([first, second]);
                                     delete parameters.i;
+                                    if (embedControl.isAdded) embedControl.removeFrom(map);
     	    	    	            info.update();
                                     loadData('comuni');
                                     this._map.fitBounds(bounds, {maxZoom:12});
@@ -560,6 +567,7 @@
                     layer.highlight = true;
                     layer.setStyle(highlightStyle);
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
+                    if (embedControl.isAdded) embedControl.removeFrom(map);
                     info.update(layer.feature.properties);
                     if (!L.Browser.ie && !L.Browser.opera) {
 	        			layer.bringToFront();
@@ -612,6 +620,7 @@
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
+                            if (embedControl.isAdded) embedControl.removeFrom(map);
                             info.update();
                             loadData(d);
                         }
@@ -666,7 +675,7 @@
                                 '.js',
                             dataPath = apiPath + 
                                 '?resource_id=' + data[territorio].resourceId + 
-                                (parameters.t ? ('&filters[' + defaultData[parameters.fl].id + ']=' + parameters.t) : ""); 
+                                (parameters.t ? ('&filters[' + defaultData[parameters.tl].id + ']=' + parameters.t) : ""); 
                         map.spin(true);
                         queue()
                             .defer(d3.json, geoPath) // Geojson
@@ -694,6 +703,7 @@
                     } else {
                         geojson.addData(geo[territorio].resource);
                         delete parameters.i;
+                        if (embedControl.isAdded) embedControl.removeFrom(map);
                         info.update();
                     }
                 }

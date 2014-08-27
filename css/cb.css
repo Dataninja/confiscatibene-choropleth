@@ -167,6 +167,10 @@ html, body, #map {
     text-align: right;
 }
 
+.leaflet-top.leaflet-right {
+    z-index: 1010;
+}
+
 /* Attribution */
 
 .leaflet-control-attribution {
