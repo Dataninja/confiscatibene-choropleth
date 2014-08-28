@@ -620,6 +620,7 @@
                                 for (var i=0; i<points.length; i++) {
                                     if (parameters.mr.hasOwnProperty('lat') && parameters.mr.hasOwnProperty('lng')) {
                                         var marker = L.marker();
+                                        marker.setIcon(L.icon({iconUrl: 'js/leaflet/marker-icon.png', shadowUrl: 'js/leaflet/marker-shadow.png'}));
                                         marker.setLatLng(L.latLng(points[i][parameters.mr.lat],points[i][parameters.mr.lng]));
                                         if (parameters.mr.hasOwnProperty('descr')) marker.bindPopup(points[i][parameters.mr.descr]);
                                         markers.push(marker);
