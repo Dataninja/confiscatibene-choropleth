@@ -88,11 +88,20 @@
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
-                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: true, attributionControl: false });
-        	    var southWest = L.latLng(37.118,6.877),
-                    northEast = L.latLng(46.826,18.611),
-                	bounds = L.latLngBounds(southWest, northEast);
-                map.fitBounds(bounds);
+        	    var southWest = L.latLng(35.568,5.537),
+                    northEast = L.latLng(47.843,23.203),
+                    mapBounds = L.latLngBounds(southWest, northEast),
+        	        southWestB = L.latLng(22.472,-16.523),
+                    northEastB = L.latLng(62.083,73.828),
+                    maxMapBounds = L.latLngBounds(southWestB, northEastB);
+                var map = L.map('map', { 
+                        maxZoom: 13, 
+                        minZoom: 5, 
+                        scrollWheelZoom: true, 
+                        attributionControl: false, 
+                        maxBounds: maxMapBounds
+                    });
+                map.fitBounds(mapBounds).zoomIn();
 
                 L.tileLayer (
 	    	        //'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
@@ -308,7 +317,7 @@
                     img.setAttribute('title','Reset');
                     d3.select(img).on('click', function() {
                         loadData(parameters.ml);
-                        map.fitBounds(geojson.getBounds());
+                        map.fitBounds(mapBounds).zoomIn();
                     });
                     return img;
                 };
@@ -513,7 +522,7 @@
                             collapsed: true, 
                             position: 'topleft',
                             text: 'Cerca il tuo comune',
-                            bounds: bounds,
+                            bounds: mapBounds,
                             email: "info@confiscatibene.it",
                             callback: function (results) {
                                 if (results.length) {
