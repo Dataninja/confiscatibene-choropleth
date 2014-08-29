@@ -254,7 +254,7 @@ html, body, #map {
 }
 
 .info.closed {
-    max-width: 33%;
+    max-width: 25%;
 }
 
 .info h4 {
