@@ -292,14 +292,15 @@
                     } else {
                         d3.select(this._div).classed("closed", true);
                         if (parameters.md === 'mobile') map.dragging.enable();
-                        this._div.innerHTML += '<p>' + 
-                            'La mappa mostra il numero di beni confiscati per ogni territorio mediante un gradiente di colore più o meno scuro, mostrato nella legenda in basso a sinistra. ' + 
-                            'Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli amministrativi (regioni, province, comuni). ' +
-                            'La lente permette di cercare un comune per nome, zoomare su di esso e leggere i dettagli dei beni che vi si trovano. ' + 
-                            'Cliccando su un territorio si apre la finestra di dettaglio con tutte le informazioni sui beni presenti e la possibilità di scaricarne la lista completa. ' + 
-                            'I pulsanti in alto a destra permettono di resettare la mappa e visualizzare il codice di embed per includerla in una qualsiasi pagina web. ' + 
-                            'I dati sono quelli ufficiali dell\'<a href="www.benisequestraticonfiscati.it" target="_blank">ANBSC</a>, sono esclusi i beni non confiscati in via autonoma.' + 
-                            '</p>';
+                        this._div.innerHTML += '' + 
+                            '<p>La mappa mostra il numero di beni confiscati per tutti i territori amministrativi italiani, secondo i dati ufficiali dell\'<a href="http://www.benisequestraticonfiscati.it" target="_blank">ANBSC</a> (sono esclusi i beni non confiscati in via autonoma). La corrispondenza tra il gradiente di colore e il numero complessivo di beni confiscati è dato nella legenda in basso a sinistra.</p>' + 
+                            '<p>Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli (regioni, province, comuni).</p>' +
+                            '<p>Principali funzioni della mappa: <ul>' + 
+                            '<li>cerca i dati relativi al tuo territorio cliccando sulla lente e inserendo il nome di un comune;</li>' + 
+                            '<li>clicca sul territorio per visualizzare i dati in dettaglio, la composizione dei beni e per scaricarne la lista completa;</li>' + 
+                            '<li>includi la vista corrente della mappa sul tuo sito con il codice di embed o scaricane uno screenshot (pulsanti in alto a destra).</li>' +
+                            '</ul></p>' +
+                            '<p>Tieniti aggiornato sul progetto visitando il sito ufficiale di <a href="http://www.confiscatibene.it" target="_blank">Confiscati Bene</a> o seguendo l\'account Twitter <a href="https://twitter.com/confiscatibene" target="_blank">@confiscatibene</a>, puoi anche scriverci all\'indirizzo <a href="" target="_blank">info@confiscatibene.it</a>.</p>'
                     }
     		    };
                 if (parameters.md === 'widget') {

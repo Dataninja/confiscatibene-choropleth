@@ -257,6 +257,11 @@ html, body, #map {
     max-width: 25%;
 }
 
+.info.closed ul {
+    padding-left: 0;
+    list-style-position: inside;
+}
+
 .info h4 {
 	margin: 0 0 5px;
 	color: #777;
