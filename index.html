@@ -109,6 +109,10 @@
                         parameters.dl = parameters.ml;
                     }
                 }
+                if (parameters.mr && parameters.mr.hasOwnProperty('rid')) {
+                    parameters.mr.lat = parameters.mr.lat || 'lat';
+                    parameters.mr.lng = parameters.mr.lng || 'lng';
+                }
                 
                 // Livelli disponibili da parametri dell'URL
                 for (var i=parameters.ls.indexOf(parameters.ml); i<parameters.ls.length; i++) {
@@ -780,13 +784,11 @@
                                 var markers = [],
                                     points = data[territorio].markers.result.records;
                                 for (var i=0; i<points.length; i++) {
-                                    if (parameters.mr.hasOwnProperty('lat') && parameters.mr.hasOwnProperty('lng')) {
-                                        var marker = L.marker();
-                                        marker.setIcon(L.icon({iconUrl: 'js/leaflet/marker-icon.png', shadowUrl: 'js/leaflet/marker-shadow.png'}));
-                                        marker.setLatLng(L.latLng(points[i][parameters.mr.lat],points[i][parameters.mr.lng]));
-                                        if (parameters.mr.hasOwnProperty('descr')) marker.bindPopup(points[i][parameters.mr.descr]);
-                                        markers.push(marker);
-                                    }
+                                    var marker = L.marker();
+                                    marker.setIcon(L.icon({iconUrl: 'js/leaflet/marker-icon.png', shadowUrl: 'js/leaflet/marker-shadow.png'}));
+                                    marker.setLatLng(L.latLng(points[i][parameters.mr.lat],points[i][parameters.mr.lng]));
+                                    if (parameters.mr.hasOwnProperty('iw')) marker.bindPopup(points[i][parameters.mr.iw]);
+                                    markers.push(marker);
                                 }
                                 L.layerGroup(markers).addTo(map);
                             }

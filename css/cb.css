@@ -360,6 +360,7 @@ img.screenshot: hover {
     width: 30%;
 }
 
+
 /*** Sharing buttons ***/
 
 #buttons > * {
@@ -367,6 +368,13 @@ img.screenshot: hover {
     margin-right: 5px !important;
 }
 
+
+/*** Marker infowindow ***/
+
+.leaflet-popup-content p {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
 
 /*** Print Handling ***/
 
