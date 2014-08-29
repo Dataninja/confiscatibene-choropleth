@@ -134,7 +134,6 @@
                         maxBounds: maxMapBounds
                     });
                 map.fitBounds(mapBounds);
-                if (parameters.md != 'widget' && parameters.md != 'mobile') map.zoomIn();
 
                 L.tileLayer (
 	    	        //'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
@@ -369,11 +368,7 @@
                     img.setAttribute('title','Reset');
                     d3.select(img).on('click', function() {
                         loadData(parameters.ml);
-                        if (parameters.md != 'widget' && parameters.md != 'mobile') {
-                            map.fitBounds(mapBounds).zoomIn();
-                        } else {
-                            map.fitBounds(mapBounds);
-                        }
+                        map.fitBounds(mapBounds);
                     });
                     return img;
                 };
