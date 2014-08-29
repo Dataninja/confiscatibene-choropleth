@@ -1,17 +1,45 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Mappa dei beni confiscati - Confiscati Bene</title>
-	    <meta charset="utf-8" />
-    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mappa dei beni confiscati in Italia - Confiscati Bene</title>
         <link rel="shortcut icon" href="img/favicon.gif" />
-        <meta property="og:site_name" content="Confiscati Bene" />
-        <meta property="og:locale" content="it_it" />
+	    <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni         confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi: http://www.confiscatibene.it/." />
+        <!-- Google Rich Snippet: http://www.9lessons.info/2014/01/social-meta-tags-for-google-twitter-and.html -->
+        <meta property="business:contact_data:country_name" content="Italy"/>
+        <meta property="business:contact_data:email" content="info@confiscatibene.it"/>
+        <meta property="business:contact_data:website" content="http://www.confiscatibene.it"/>
+        <meta itemprop="name" content="Mappa dei beni confiscati in Italia - Confiscati Bene"/>
+        <meta itemprop="description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni         confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi: http://www.confiscatibene.it/."/>
+        <meta itemprop="image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/cbmapogimage.png"/>
+        <!-- End Google Rich Snippet -->
+        <!-- Open Graph Protocol: http://ogp.me/ -->
+        <meta property="og:title" content="Mappa dei beni confiscati in Italia - Confiscati Bene" />
+        <meta property="og:determiner" content="the" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Confiscati Bene" />
-        <meta property="og:url" content="http://www.confiscatibene.it" />
-        <meta property="og:description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi. Alla sua costruzione e implementazione partecipano giornalisti, attivisti e tecnologi: ognuno di noi mette a disposizione la propria specifica competenza per rispondere ad alcune domande sullo stato e sulla gestione dei beni confiscati in Italia alla criminalità organizzata: Quanti sono? Dove sono? Quanto valgono? Come vengono riutilizzati?" />
-        <meta property="og:image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/logocb.png" />
+        <meta property="og:image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/cbmapogimage.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="420" />
+        <meta property="og:image:height" content="420" />
+        <meta property="og:url" content="http://viz.confiscatibene.it/anbsc/choropleth/" />
+        <meta property="og:description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi: http://www.confiscatibene.it/." />
+        <meta property="og:site_name" content="Confiscati Bene" />
+        <meta property="og:see_also" content="http://www.confiscatibene.it"/>
+        <meta property="og:locale" content="it_IT" />
+        <!-- End Open Graph Protocol -->
+        <!-- Twitter Card Metas: http://davidwalsh.name/twitter-cards -->
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:url" content="http://viz.confiscatibene.it/anbsc/choropleth/" />
+        <meta property="twitter:title" content="Mappa dei beni confiscati in Italia - Confiscati Bene" />
+        <meta property="twitter:description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi: http://www.confiscatibene.it/." />
+        <meta property="twitter:image:src" content="http://viz.confiscatibene.it/anbsc/choropleth/img/cbmapogimage.png" />
+        <meta property="twitter:image:width" content="420" />
+        <meta property="twitter:image:height" content="420" />
+        <meta property="twitter:domain" content="viz.confiscatibene.it" />
+        <meta property="twitter:site" content="@confiscatibene" />
+        <meta property="twitter:creator" content="@jenkin27" />
+        <!-- End Twitter Card Metas -->
         <script src="js/head/head.min.js"></script>
         <script type="text/javascript">
             //var JSTERS = {};
@@ -30,11 +58,18 @@
                 .load("js/completely/complete.ly.1.0.1.js")
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
-                .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
+                .load("js/filesaver/Blob.js", "js/filesaver/canvas-toBlob.js", "js/filesaver/FileSaver.js")
+                .load("js/canvg/rgbcolor.js", "js/canvg/StackBlur.js", "js/canvg/canvg.js")
+                .load("js/html2canvas/html2canvas.js")
+                .load("js/md5/md5.min.js")
+                .load("js/yourls/yourls.min.js")
                 .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
-                var apiPath = '/api/confiscatibene/action/datastore/search.json';
+                var apiPath = '/api/confiscatibene/action/datastore/search.json',
+                    dtnjPath = '/api/dtnj/yourls-api.php', 
+                    dtnj = yourls.connect(dtnjPath, { signature: 'efe758b8d3' }),
+                    svgViewBox;
                 
                 /*** Gestione dei dati ***/
                 var defaultGeo = {
@@ -52,51 +87,66 @@
                 // Parametri dell'URL
                 /* ie. http://viz.confiscatibene.it/anbsc/choropleth/?ls[0]=regioni&ls[1]=province&ls[2]=comuni&dl=regioni&t=1
                     {
-                        ls: Array(), // Livelli caricati: regioni, province, comuni
-                        dl: [string], // Livello mostrato al caricamento (e a cui eventualmente si riferisce t)
-                        t: [int], // Codice istat del territorio centrato e con infowindow aperta
-                        i: [int] // Codice istat del territorio con infowindow aperta
+                        ls: Array(), // Livelli caricati: regioni, province, comuni (default: tutti) -- LAYERS
+                        md: [string], // Layout di visualizzazione: full (default), embed, mobile (auto se su mobile), widget -- MODE
+                        dl: [string], // Livello mostrato al caricamento -- DEFAULT LAYER
+                        ml: [string], // Livello caricato più alto: regioni, province, comuni -- MAX LAYER
+                        tl: [string], // Livello a cui si riferisce t -- TERRITORY LAYER
+                        t: [int], // Codice istat del territorio centrato e con infowindow aperta (si riferisce a tl) -- TERRITORY
+                        i: [int] // Codice istat del territorio con infowindow aperta -- INFO
                     }
                 */
-                var parameters = Arg.query();
-                //console.log(parameters);
-                parameters.ls = parameters.ls || d3.keys(defaultGeo);
-                parameters.ml = parameters.ls[0];
-                parameters.dl = parameters.fl || parameters.dl || parameters.ml;
-                parameters.md = parameters.md || (head.mobile ? 'mobile' : '');
-                d3.select('body').classed(parameters.md,true);
-                if (parameters.t) {
-                    parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
-                    parameters.fl = parameters.dl;
-                    parameters.dl = parameters.ml = parameters.ls[0];
+                var parameters = Arg.query(); // Parsing dei parametri dell'URL
+                parameters.ls = parameters.ls || d3.keys(defaultGeo); // Livelli caricati (default: tutti)
+                parameters.ml = parameters.ls[0]; // Livello caricato più alto (PRIVATO)
+                parameters.dl = parameters.dl || parameters.ml; // Livello visibile al caricamento
+                parameters.md = parameters.md || (head.mobile ? 'mobile' : ''); // Layout
+                d3.select('body').classed(parameters.md,true); // Tengo traccia del layout come classe del body
+                if (parameters.t) { // Focus su un territorio (codice istat che si riferisce a tl)
+                    parameters.tl = parameters.tl || parameters.ml; // Livello a cui si riferisce t
+                    parameters.ml = parameters.ls[parameters.ls.indexOf(parameters.tl)+1]; // Si riferisce ora al livello più alto caricato
+                    if (parameters.ls.indexOf(parameters.dl) < parameters.ls.indexOf(parameters.tl)+1) {
+                        parameters.dl = parameters.ml;
+                    }
                 }
                 
                 // Livelli disponibili da parametri dell'URL
-                for (var i=0; i<parameters.ls.length; i++) {
+                for (var i=parameters.ls.indexOf(parameters.ml); i<parameters.ls.length; i++) {
                     if (defaultGeo.hasOwnProperty(parameters.ls[i]) && defaultData.hasOwnProperty(parameters.ls[i])) {
                         geo[parameters.ls[i]] = defaultGeo[parameters.ls[i]];
                         data[parameters.ls[i]] = defaultData[parameters.ls[i]];
                     }
                 }
-                if (parameters.t) { parameters.ls.unshift(parameters.fl); }
                 /*** ***/
 
                 /*** Inizializzazione della mappa ***/
-                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: true, attributionControl: false });
-        	    var southWest = L.latLng(37.118,6.877),
-                    northEast = L.latLng(46.826,18.611),
-                	bounds = L.latLngBounds(southWest, northEast);
-                map.fitBounds(bounds);
+        	    var southWest = L.latLng(35.568,1.537),
+                    northEast = L.latLng(47.843,23.203),
+                    mapBounds = L.latLngBounds(southWest, northEast),
+        	        southWestB = L.latLng(22.472,-16.523),
+                    northEastB = L.latLng(62.083,73.828),
+                    maxMapBounds = L.latLngBounds(southWestB, northEastB);
+                var map = L.map('map', { 
+                        maxZoom: 13, 
+                        minZoom: 5, 
+                        scrollWheelZoom: true, 
+                        attributionControl: false, 
+                        maxBounds: maxMapBounds
+                    });
+                map.fitBounds(mapBounds);
+
                 L.tileLayer (
-	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
+	    	        //'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
+	    	        '/api/geoiq/{s}/{z}/{x}/{y}.png',
                     {
-                        attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a>', 
                 		opacity: 0.7
 		            }
                 ).addTo(map);
                 map.spin(true);
                 var attrib = L.control.attribution().addTo(map);
-                attrib.addAttribution('icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>');
+                attrib.addAttribution('Powered by <a href="http://www.dataninja.it/" target="_blank">Dataninja</a>');
+                attrib.addAttribution('acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a>');
+                attrib.addAttribution('icons designed by <a href="http://www.flaticon.com/" target="_blank">Freepik</a> and <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>');
                 attrib.addAttribution('geocoding performed by <a href="http://wiki.openstreetmap.org/wiki/Nominatim" target="_blank">OSM Nominatim</a> service');
                 attrib.addAttribution('code on <a href="https://github.com/Dataninja/confiscatibene-choropleth" target="_blank">GitHub</a>.');
                 /*** ***/
@@ -138,28 +188,26 @@
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
 
-                        var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name];
+                        var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name],
+                            btnUrl = 'http://' + location.hostname + Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"),
+                            btnEncUrl = 'http://' + location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")),
+                            btnPlace = props[geo[territorio].name];
                         var buttons = [
-                            '<a class="ssb" href="http://twitter.com/share?url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters)) + 
-                                '&text=' + encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene") + 
+                            '<a class="ssb" href="http://twitter.com/share?url=' + btnEncUrl + 
+                                '&via=confiscatibene' + 
+                                '&text=' + encodeURIComponent(btnPlace + ', immobili e aziende #confiscatibene ') + 
                                 '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
-                            '<a class="ssb" href="http://www.facebook.com/sharer.php?u=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters)) + 
+                            '<a class="ssb" href="http://www.facebook.com/sharer.php?u=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
-                            '<a class="ssb" href="https://plus.google.com/share?url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters)) + 
+                            '<a class="ssb" href="https://plus.google.com/share?url=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
-                            '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters)) + 
+                            '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
-                            '<a class="ssb" href="mailto:?Subject=Confiscati Bene a ' + 
-                                encodeURIComponent(props[geo[territorio].name]) + 
-                                '&Body=Gli immobili e le aziende %23confiscatibene di ' + 
-                                encodeURIComponent(props[geo[territorio].name]) + 
-                                ': http://viz.confiscatibene.it' + 
-                                encodeURIComponent(Arg.url(parameters)) + 
-                                '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>'
+                            '<a class="ssb" href="mailto:?Subject=' + encodeURIComponent('Confiscati Bene | ' + btnPlace) + 
+                                '&Body=' + encodeURIComponent(btnPlace + ', gli immobili e le aziende #confiscatibene: ') + btnEncUrl + 
+                                '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>',
+                            '<a class="ssb" href="' + btnUrl + 
+                                '" target="_blank" title="Permalink"><img src="img/link.png" id="ssb-link"></a>'
                         ];
 
                         var dnlBtn = [
@@ -170,7 +218,7 @@
                         var table = '<table class="zebra">' + 
                             '<thead>' + 
                             '<tr>' + 
-                            '<th>' + dnlBtn.join("&nbsp;") + "&nbsp;&nbsp;" + buttons.join("&nbsp;") + '</th>' + 
+                            '<th>' + '<span id="sdnlBtn">'+dnlBtn.join("&nbsp;")+'</span>' + "&nbsp;&nbsp;" + '<span id="sshrBtn">'+buttons.join("&nbsp;")+'</span>' + '</th>' + 
                             '<th style="text-align:right;"><a id="close-cross" href="#" title="Chiudi"><img src="img/close.png" /></a></th></tr>' + 
                             '<tr>' + 
                             '<th colspan="2" class="rossobc">' + props[geo[territorio].name] + '</th>' +
@@ -178,7 +226,7 @@
                             '</thead>' + 
                             '<tfoot>' + 
                             '<tr><td colspan="2" style="text-align:right;font-size: smaller;">' + 
-                            'Creative Commons Attribution <a href="http://creativecommons.org/licenses/by/3.0/it/" target="_blank">CC-BY 3.0 Italia</a>.' + 
+                            'Creative Commons Attribution <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0 International</a>.' + 
                             '</td></tr>' + 
                             '</tfoot>' + 
                             '<tbody>';
@@ -195,6 +243,28 @@
                         table += '</tbody></table>';
 
                         this._div.innerHTML += table;
+
+                        dtnj.shorten(btnEncUrl, 'confiscatibene-'+md5(btnUrl), function(data) {
+                            var btnEncUrl = data.shorturl,
+                                buttons = [
+                                '<a class="ssb" href="http://twitter.com/share?url=' + btnEncUrl + 
+                                    '&via=confiscatibene' + 
+                                    '&text=' + encodeURIComponent(btnPlace + ', immobili e aziende #confiscatibene ') + 
+                                    '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
+                                '<a class="ssb" href="http://www.facebook.com/sharer.php?u=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
+                                '<a class="ssb" href="https://plus.google.com/share?url=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
+                                '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
+                                '<a class="ssb" href="mailto:?Subject=' + encodeURIComponent('Confiscati Bene | ' + btnPlace) + 
+                                    '&Body=' + encodeURIComponent(btnPlace + ', gli immobili e le aziende #confiscatibene: ') + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>',
+                                '<a class="ssb" href="' + btnUrl + 
+                                    '" target="_blank" title="Permalink"><img src="img/link.png" id="ssb-link"></a>'
+                            ];
+                            d3.select("#sshrBtn").node().innerHTML = buttons.join("&nbsp;"); 
+                        });
 
                         var imPath = apiPath + 
                             "?resource_id=" + imResId + "&limit=5000&filters[" + 
@@ -236,20 +306,22 @@
                             .on("click", function() {
                                 geojson.eachLayer(function(l) { l.highlight = false; geojson.resetStyle(l); });
                                 delete parameters.i;
+                                if (embedControl.isAdded) embedControl.removeFrom(map);
                                 info.update();
                                 return false;
                             });
                     } else {
                         d3.select(this._div).classed("closed", true);
                         if (parameters.md === 'mobile') map.dragging.enable();
-                        this._div.innerHTML += '<p>' + 
-                            'La mappa mostra il numero di beni confiscati per ogni territorio mediante un gradiente di colore più o meno scuro, mostrato nella legenda in basso a sinistra. ' + 
-                            'Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli amministrativi (regioni, province, comuni). ' +
-                            'La lente permette di cercare un comune per nome, zoomare su di esso e leggere i dettagli dei beni che vi si trovano. ' + 
-                            'Cliccando su un territorio si apre la finestra di dettaglio con tutte le informazioni sui beni presenti e la possibilità di scaricarne la lista completa. ' + 
-                            'I pulsanti in alto a destra permettono di resettare la mappa e visualizzare il codice di embed per includerla in una qualsiasi pagina web. ' + 
-                            'I dati sono quelli ufficiali dell\'<a href="www.benisequestraticonfiscati.it" target="_blank">ANBSC</a>, sono esclusi i beni non confiscati in via autonoma.' + 
-                            '</p>';
+                        this._div.innerHTML += '' + 
+                            '<p>La mappa mostra il numero di beni confiscati per tutti i territori amministrativi italiani, secondo i dati ufficiali dell\'<a href="http://www.benisequestraticonfiscati.it" target="_blank">ANBSC</a> (sono esclusi i beni non confiscati in via autonoma). La corrispondenza tra il gradiente di colore e il numero complessivo di beni confiscati è dato nella legenda in basso a sinistra.</p>' + 
+                            '<p>Mediante il selettore in alto a sinistra si possono caricare e visualizzare ulteriori livelli (regioni, province, comuni).</p>' +
+                            '<p>Principali funzioni della mappa: <ul>' + 
+                            '<li>cerca i dati relativi al tuo territorio cliccando sulla lente e inserendo il nome di un comune;</li>' + 
+                            '<li>clicca sul territorio per visualizzare i dati in dettaglio, la composizione dei beni e per scaricarne la lista completa;</li>' + 
+                            '<li>includi la vista corrente della mappa sul tuo sito con il codice di embed o scaricane uno screenshot (pulsanti in alto a destra).</li>' +
+                            '</ul></p>' +
+                            '<p>Tieniti aggiornato sul progetto visitando il sito ufficiale di <a href="http://www.confiscatibene.it" target="_blank">Confiscati Bene</a> o seguendo l\'account Twitter <a href="https://twitter.com/confiscatibene" target="_blank">@confiscatibene</a>, puoi anche scriverci all\'indirizzo <a href="" target="_blank">info@confiscatibene.it</a>.</p>'
                     }
     		    };
                 if (parameters.md === 'widget') {
@@ -260,7 +332,7 @@
                 /*** ***/
 
                 /*** Fullscreen ***/
-                var fullscreen = L.control.fullscreen({title: 'Fullscreen mode'}).addTo(map);
+                if (parameters.md != 'widget') var fullscreen = L.control.fullscreen({title: 'Fullscreen mode'}).addTo(map);
                 /*** ***/
 
                 /*** Logo ***/
@@ -296,7 +368,7 @@
                     img.setAttribute('title','Reset');
                     d3.select(img).on('click', function() {
                         loadData(parameters.ml);
-                        map.fitBounds(geojson.getBounds());
+                        map.fitBounds(mapBounds);
                     });
                     return img;
                 };
@@ -304,41 +376,126 @@
                 /*** ***/
 
                 /*** Pulsante di embed ***/
-                var embedTextArea = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
-                embedTextArea.onAdd = function(map) {
-                    var textarea = L.DomUtil.create('textarea', 'embed-textarea '+parameters.md),
+                var embedControl = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                embedControl.isAdded = false;
+                embedControl.onRemove = function(map) { this.isAdded = false; }
+                embedControl.onAdd = function(map) {
+                    this.isAdded = true;
+                    var textinput = {},
+                        p = {},
+                        label = {},
                         oldMd = parameters.md;
-                    parameters.md = 'embed';
-                    var iframe = '<iframe src="http://'+location.hostname+Arg.url(parameters)+'" frameborder="0" allowtransparency="true" ' + 
-                            'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' + 
-                            'width="100%" height="700"></iframe>';
-                    parameters.md = oldMd;
-                    textarea.value = iframe;
-                    d3.select(textarea).on('click', function() {
-                        this.select();
+
+                    var inputarea = L.DomUtil.create('div', 'info embed-inputarea'),
+                        url = 'http://' + location.hostname + Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"),
+                        encUrl = 'http://' + location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
+
+                    p['permalink'] = L.DomUtil.create('p', 'permalink', inputarea);
+                    p['shorturl'] = L.DomUtil.create('p', 'shorturl', inputarea);
+                    p['iframe'] = L.DomUtil.create('p', 'iframe', inputarea);
+                    p['widget'] = L.DomUtil.create('p', 'widget', inputarea);
+                    p['shortcode'] = L.DomUtil.create('p', 'shortcode', inputarea);
+                    p['svg'] = L.DomUtil.create('p', 'svg', inputarea);
+
+                    p['permalink'].innerHTML = '' + 
+                        '<label for="embed-permalink" title="Clicca per selezionare">Permalink:</label>&nbsp;' + 
+                        '<input type="text" id="embed-permalink" value="' + url + '" readonly></input>';
+                    
+                    p['shorturl'].innerHTML = '' + 
+                        '<label for="embed-shorturl" title="Clicca per selezionare">Short URL:</label>&nbsp;' + 
+                        '<input type="text" id="embed-shorturl" value="Not available..." disabled readonly></input>';
+                    dtnj.shorten(encUrl, 'confiscatibene-'+md5(url), function(data) {
+                        d3.select("input#embed-shorturl").attr("value",data.shorturl).attr("disabled",null);
                     });
-                    return textarea;
+                    
+                    parameters.md = 'embed';
+                    p['iframe'].innerHTML = '' + 
+                        '<label for="embed-iframe" title="Clicca per selezionare">Embed in post/page:</label>&nbsp;' + 
+                        '<input type="text" id="embed-iframe" value="' + 
+                        '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
+                        'width=&quot;100%&quot; height=&quot;700&quot;></iframe>' + 
+                        '" readonly></input>';
+                    
+                    parameters.md = 'widget';
+                    p['widget'].innerHTML = '' + 
+                        '<label for="embed-widget" title="Clicca per selezionare">Embed in sidebar:</label>&nbsp;' + 
+                        '<input type="text" id="embed-widget" value="' + 
+                        '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
+                        'width=&quot;100%&quot; height=&quot;755&quot;></iframe>' + 
+                        '" readonly></input>';
+
+                    parameters.md = 'embed';
+                    p['shortcode'].innerHTML = '' + 
+                        '<label for="embed-shortcode" title="Clicca per selezionare">WP Shortcode (<a href="https://github.com/Dataninja/wp-cbmap-shortcode" target="_blank">?</a>):</label>&nbsp;' +
+                        '<input type="text" id="embed-shortcode" value="' +
+                        '[cbmap ' + decodeURIComponent(Arg.url(parameters).replace(/^[^?]+\?/,"").replace(/&/g," ")) + ']' + 
+                        '" readonly></input>';
+                    
+                    parameters.md = oldMd;
+                    p['svg'].innerHTML = '' + 
+                        '<label for="embed-svg" title="Copia/incolla il codice o scaricalo cliccando sull\'immagine">Scalable Vector Graphics:</label>&nbsp;' +
+                        '<textarea id="embed-svg" readonly>' +
+                        d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n") + 
+                        '</textarea>&nbsp;' + 
+                        '<img src="img/svg.png" title="Scarica l\'immagine in SVG">';
+
+                    for (var k in p) {
+                        if (p.hasOwnProperty(k)) {
+                            d3.select(p[k]).select('input').on('focus', function() { this.select(); });
+                        }
+                    }
+
+                    d3.select(p['svg']).select("img").on("click", function() {
+                        var blob = new Blob([d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n")], {type: "image/svg+xml;charset=utf-8"}),
+                            filename = 'confiscatibene_map.svg';
+                        saveAs(blob, filename);
+                    });
+                    
+                    return inputarea;
                 };
 
                 var embed = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
                 embed.onAdd = function(map) {
-                    var img = L.DomUtil.create('img', 'embed '+parameters.md),
-                        added = false;
+                    var img = L.DomUtil.create('img', 'embed '+parameters.md);
                     img.setAttribute('src','img/embed.png');
                     img.setAttribute('title','Embed this map');
                     d3.select(img).on('click', function() {
-                        if (!added) {
-                            embedTextArea.addTo(map);
-                            embedTextArea.getContainer().select();
-                            added = true;
+                        if (!embedControl.isAdded) {
+                            embedControl.addTo(map);
                         } else {
-                            embedTextArea.removeFrom(map);
-                            added = false;
+                            if (embedControl.isAdded) embedControl.removeFrom(map);
                         }
                     });
                     return img;
                 };
                 embed.addTo(map);
+                /*** ***/
+
+                /*** Screenshot map ***/
+                if (parameters.md != 'widget') {
+                    var screenshot = L.control({position: (parameters.md === 'mobile' ? 'bottomleft' : 'topright')});
+                    screenshot.onAdd = function(map) {
+                        var img = L.DomUtil.create('img','screenshot '+parameters.md);
+                        img.setAttribute('id','screenshot');
+                        img.setAttribute('src','img/screenshot.png');
+                        img.setAttribute('title','Take a screenshot');
+                        d3.select(img).on('click', function () {
+                            html2canvas(document.body, {
+                                onrendered: function(canvas) {
+                                    var svg = d3.select(".leaflet-overlay-pane svg");
+                                    canvg(canvas, svg.node().outerHTML, {ignoreMouse: true, ignoreAnimation: true, ignoreDimensions: true, ignoreClear: true, offsetX: svgViewBox[0], offsetY: svgViewBox[1]});
+                                    canvas.toBlob(function(blob) {
+                                        saveAs(blob,"confiscatibene_map.png");
+                                    });
+                                }
+                            });
+                        });
+                        return img;
+                    };
+                    screenshot.addTo(map);
+                }
                 /*** ***/
 
                 /*** Detach map ***/
@@ -347,13 +504,13 @@
                     detach.onAdd = function(map) {
                         var a = L.DomUtil.create('a','detach '+parameters.md),
                             img = L.DomUtil.create('img','detach',a);
-                        a.setAttribute('href',Arg.url(parameters));
+                        a.setAttribute('href',Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
                         a.setAttribute('target','_blank');
                         a.setAttribute('title','Open in new window');
                         img.setAttribute('id','detach');
                         img.setAttribute('src','img/detach.png');
                         d3.select(a).on('click', function () {
-                            this.setAttribute('href',Arg.url(parameters));
+                            this.setAttribute('href',Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
                         });
                         return a;
                     };
@@ -367,9 +524,9 @@
                     share.onAdd = function(map) {
                         var div = L.DomUtil.create('div','share '+parameters.md);
                         div.setAttribute('id','buttons');
-                        var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://confiscatibene.it/it/mappe/" data-via="confiscatibene" data-lang="it" data-related="confiscatibene" data-hashtags="confiscatibene" data-count="vertical">Tweet</a>';
-                        var facebook = '<div class="fb-like" data-href="http://confiscatibene.it/it/mappe/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
-                        var gplus = '<div class="g-plusone" data-size="tall" data-href="http://confiscatibene.it/it/mappe/" data-annotation="bubble"></div>';
+                        var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://viz.confiscatibene.it/anbsc/choropleth/" data-via="confiscatibene" data-lang="it" data-related="jenkin27:Data scientist at Dataninja" data-hashtags="confiscatibene,dataninja" data-count="vertical">Tweet</a>';
+                        var facebook = '<div class="fb-like" style="overflow:hidden;" data-href="http://viz.confiscatibene.it/anbsc/choropleth/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
+                        var gplus = '<div class="g-plusone" data-size="tall" data-href="http://viz.confiscatibene.it/anbsc/choropleth/" data-annotation="bubble"></div>';
                         div.innerHTML = twitter + facebook + gplus;
                         head.load("https://platform.twitter.com/widgets.js")
                             .load("http://connect.facebook.net/it_IT/sdk.js#xfbml=1&appId=470290923072583&version=v2.0") // appID di Dataninja
@@ -407,7 +564,7 @@
                 function getColor(d, bins) {
                     for (var i=1; i<bins.length; i++) {
                         if (d <= bins[i]) {
-                            return colorbrewer.Reds[bins.length-1][i-1];
+                            return (colorbrewer.Reds[bins.length-1] ? colorbrewer.Reds[bins.length-1][i-1] : colorbrewer.Reds[3][i-1]);
                         }
                     }
                 }
@@ -426,7 +583,7 @@
                             collapsed: true, 
                             position: 'topleft',
                             text: 'Cerca il tuo comune',
-                            bounds: bounds,
+                            bounds: mapBounds,
                             email: "info@confiscatibene.it",
                             callback: function (results) {
                                 if (results.length) {
@@ -435,9 +592,10 @@
                                         second = new L.LatLng(bbox[1], bbox[3]),
                                         bounds = new L.LatLngBounds([first, second]);
                                     delete parameters.i;
+                                    if (embedControl.isAdded) embedControl.removeFrom(map);
     	    	    	            info.update();
                                     loadData('comuni');
-                                    this._map.fitBounds(bounds, {maxZoom:12});
+                                    this._map.fitBounds(bounds, {maxZoom:10});
                                 }
                             }
                         }
@@ -479,6 +637,7 @@
                     layer.highlight = true;
                     layer.setStyle(highlightStyle);
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
+                    if (embedControl.isAdded) embedControl.removeFrom(map);
                     info.update(layer.feature.properties);
                     if (!L.Browser.ie && !L.Browser.opera) {
 	        			layer.bringToFront();
@@ -509,8 +668,9 @@
                     var grades = data[territorio].ranges;
                     this._div.innerHTML = (parameters.md != 'widget' ? '<h4 title="Numero totale di beni confiscati">Legenda</h4>' : '');
                     for (var i=0; i<grades.length; i++) {
+                        var color = (colorbrewer.Reds[grades.length] ? colorbrewer.Reds[grades.length][i] : colorbrewer.Reds[3][i]);
                         this._div.innerHTML += '<i title="Tra ' + grades[i].replace("-","e") + ' beni confiscati" style="background:' + 
-                            colorbrewer.Reds[grades.length][i] + '"></i> ' + 
+                            color + '"></i> ' + 
                             (parameters.md != 'widget' ? grades[i] : '') + '<br>';
                     }
                     if (parameters.md != 'widget') this._div.innerHTML += '<br>Numero totale<br>di beni confiscati';
@@ -531,6 +691,7 @@
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
+                            if (embedControl.isAdded) embedControl.removeFrom(map);
                             info.update();
                             loadData(d);
                         }
@@ -632,6 +793,7 @@
                     } else {
                         geojson.addData(geo[territorio].resource);
                         delete parameters.i;
+                        if (embedControl.isAdded) embedControl.removeFrom(map);
                         info.update();
                     }
                 }

@@ -167,6 +167,10 @@ html, body, #map {
     text-align: right;
 }
 
+.leaflet-top.leaflet-right {
+    z-index: 1010;
+}
+
 /* Attribution */
 
 .leaflet-control-attribution {
@@ -250,7 +254,12 @@ html, body, #map {
 }
 
 .info.closed {
-    max-width: 33%;
+    max-width: 25%;
+}
+
+.info.closed ul {
+    padding-left: 0;
+    list-style-position: inside;
 }
 
 .info h4 {
@@ -300,7 +309,8 @@ html, body, #map {
 
 img.reset, 
 img.detach, 
-img.embed {
+img.embed,
+img.screenshot {
     height: 36px;
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.25);
@@ -308,41 +318,53 @@ img.embed {
     background-color: white;
 }
 
+a.detach {
+    margin-top: 5px !important;
+}
+
 img.reset: hover, 
 img.detach: hover, 
-img.embed: hover {
+img.embed: hover,
+img.screenshot: hover {
     background-color: whitesmoke;
 }
 
-textarea.embed-textarea {
+.embed-inputarea {
     display: block;
-    width: 30em;
-    max-width: 75%;
-    height: 5em;
-    max-height: 10em;
-    resize: vertical;
-    border: 1px solid rgba(0,0,0,0.25);
     color: #404040;
-    padding: 5px;
-    background: whitesmoke;
-    border-radius: 5px;
+    padding: 0px 15px;
+    margin-top: 1em !important;
+    text-align: right;
 }
 
+.embed-inputarea .svg > * {
+    vertical-align: middle;
+}
+
+.embed-inputarea .svg textarea {
+    height: 3em;
+    width: 7em;
+}
+
+.embed-inputarea .svg img {
+    height: 4em;
+    cursor: pointer;
+}
+
+.screenshot-container {
+    display: block;
+    margin-top: 1em !important;
+}
+
+.screenshot-container canvas {
+    width: 30%;
+}
 
 /*** Sharing buttons ***/
 
 #buttons > * {
     margin-left: 5px !important;
     margin-right: 5px !important;
-}
-
-.fb-like {
-    bottom: 6px;
-}
-
-#___plusone_0 {
-    position: relative;
-    bottom: 2px;
 }
 
 
