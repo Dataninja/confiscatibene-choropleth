@@ -746,7 +746,7 @@
                                 '.js',
                             dataPath = apiPath + 
                                 '?resource_id=' + data[territorio].resourceId + 
-                                (parameters.t ? ('&filters[' + defaultData[parameters.fl].id + ']=' + parameters.t) : ""),
+                                (parameters.t ? ('&filters[' + defaultData[parameters.tl].id + ']=' + parameters.t) : ""),
                             q = queue();
                         map.spin(true);
                         q.defer(d3.json, geoPath); // Geojson
@@ -767,6 +767,7 @@
                             joinData(territorio);
                             binData(territorio);
 	        		        geojson.addData(geo[territorio].resource);
+                            if (!svgViewBox) svgViewBox = d3.select(".leaflet-overlay-pane svg").attr("viewBox").split(" ");
                             if (parameters.t) { map.fitBounds(geojson.getBounds()); }
                             if (parameters.i) {
                                 geojson.eachLayer(function(l) { 
