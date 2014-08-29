@@ -62,10 +62,13 @@
                 .load("js/canvg/rgbcolor.js", "js/canvg/StackBlur.js", "js/canvg/canvg.js")
                 .load("js/html2canvas/html2canvas.js")
                 .load("js/md5/md5.min.js")
+                .load("js/yourls/yourls.min.js")
                 .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
                 var apiPath = '/api/confiscatibene/action/datastore/search.json',
+                    dtnjPath = '/api/dtnj/yourls-api.php', 
+                    dtnj = yourls.connect(dtnjPath, { signature: 'efe758b8d3' }),
                     svgViewBox;
                 
                 /*** Gestione dei dati ***/
@@ -216,7 +219,7 @@
                         var table = '<table class="zebra">' + 
                             '<thead>' + 
                             '<tr>' + 
-                            '<th>' + dnlBtn.join("&nbsp;") + "&nbsp;&nbsp;" + buttons.join("&nbsp;") + '</th>' + 
+                            '<th>' + '<span id="sdnlBtn">'+dnlBtn.join("&nbsp;")+'</span>' + "&nbsp;&nbsp;" + '<span id="sshrBtn">'+buttons.join("&nbsp;")+'</span>' + '</th>' + 
                             '<th style="text-align:right;"><a id="close-cross" href="#" title="Chiudi"><img src="img/close.png" /></a></th></tr>' + 
                             '<tr>' + 
                             '<th colspan="2" class="rossobc">' + props[geo[territorio].name] + '</th>' +
@@ -241,6 +244,28 @@
                         table += '</tbody></table>';
 
                         this._div.innerHTML += table;
+
+                        dtnj.shorten(btnEncUrl, 'confiscatibene-'+md5(btnUrl), function(data) {
+                            var btnEncUrl = data.shorturl,
+                                buttons = [
+                                '<a class="ssb" href="http://twitter.com/share?url=' + btnEncUrl + 
+                                    '&via=confiscatibene' + 
+                                    '&text=' + encodeURIComponent(btnPlace + ', immobili e aziende #confiscatibene ') + 
+                                    '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
+                                '<a class="ssb" href="http://www.facebook.com/sharer.php?u=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
+                                '<a class="ssb" href="https://plus.google.com/share?url=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
+                                '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=' + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
+                                '<a class="ssb" href="mailto:?Subject=' + encodeURIComponent('Confiscati Bene | ' + btnPlace) + 
+                                    '&Body=' + encodeURIComponent(btnPlace + ', gli immobili e le aziende #confiscatibene: ') + btnEncUrl + 
+                                    '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>',
+                                '<a class="ssb" href="' + btnUrl + 
+                                    '" target="_blank" title="Permalink"><img src="img/link.png" id="ssb-link"></a>'
+                            ];
+                            d3.select("#sshrBtn").node().innerHTML = buttons.join("&nbsp;"); 
+                        });
 
                         var imPath = apiPath + 
                             "?resource_id=" + imResId + "&limit=5000&filters[" + 
@@ -367,7 +392,8 @@
                         oldMd = parameters.md;
 
                     var inputarea = L.DomUtil.create('div', 'info embed-inputarea'),
-                        url = 'http://' + location.hostname + decodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
+                        url = 'http://' + location.hostname + Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"),
+                        encUrl = 'http://' + location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
 
                     p['permalink'] = L.DomUtil.create('p', 'permalink', inputarea);
                     p['shorturl'] = L.DomUtil.create('p', 'shorturl', inputarea);
@@ -378,15 +404,14 @@
 
                     p['permalink'].innerHTML = '' + 
                         '<label for="embed-permalink" title="Clicca per selezionare">Permalink:</label>&nbsp;' + 
-                        '<input type="text" id="embed-permalink" value="' + url + '"></input>';
+                        '<input type="text" id="embed-permalink" value="' + url + '" readonly></input>';
                     
                     p['shorturl'].innerHTML = '' + 
                         '<label for="embed-shorturl" title="Clicca per selezionare">Short URL:</label>&nbsp;' + 
-                        '<input type="text" id="embed-shorturl" value="Not yet available..."></input>';
-                    d3.json('http://dtnj.it/yourls-api.php?signature=efe758b8d3&action=shorturl&url=' + url +
-                        '&keyword=confiscatibene-'+md5(url)+'&format=json', function(err,data) {
-                            d3.select("input#embed-shorturl").attr("value",data.shorturl);
-                        });
+                        '<input type="text" id="embed-shorturl" value="Not available..." disabled readonly></input>';
+                    dtnj.shorten(encUrl, 'confiscatibene-'+md5(url), function(data) {
+                        d3.select("input#embed-shorturl").attr("value",data.shorturl).attr("disabled",null);
+                    });
                     
                     parameters.md = 'embed';
                     p['iframe'].innerHTML = '' + 
@@ -395,7 +420,7 @@
                         '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
                         'width=&quot;100%&quot; height=&quot;700&quot;></iframe>' + 
-                        '"></input>';
+                        '" readonly></input>';
                     
                     parameters.md = 'widget';
                     p['widget'].innerHTML = '' + 
@@ -404,19 +429,19 @@
                         '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
                         'width=&quot;100%&quot; height=&quot;755&quot;></iframe>' + 
-                        '"></input>';
+                        '" readonly></input>';
 
                     parameters.md = 'embed';
                     p['shortcode'].innerHTML = '' + 
                         '<label for="embed-shortcode" title="Clicca per selezionare">WP Shortcode (<a href="https://github.com/Dataninja/wp-cbmap-shortcode" target="_blank">?</a>):</label>&nbsp;' +
                         '<input type="text" id="embed-shortcode" value="' +
                         '[cbmap ' + decodeURIComponent(Arg.url(parameters).replace(/^[^?]+\?/,"").replace(/&/g," ")) + ']' + 
-                        '"></input>';
+                        '" readonly></input>';
                     
                     parameters.md = oldMd;
                     p['svg'].innerHTML = '' + 
                         '<label for="embed-svg" title="Copia/incolla il codice o scaricalo cliccando sull\'immagine">Scalable Vector Graphics:</label>&nbsp;' +
-                        '<textarea id="embed-svg">' +
+                        '<textarea id="embed-svg" readonly>' +
                         d3.select(".leaflet-overlay-pane")[0][0].innerHTML.replace(/\>/g,">\n") + 
                         '</textarea>&nbsp;' + 
                         '<img src="img/svg.png" title="Scarica l\'immagine in SVG">';
