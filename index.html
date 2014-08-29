@@ -185,29 +185,25 @@
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
 
-                        var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name];
+                        var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name],
+                            btnUrl = 'http://' + location.hostname + Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"),
+                            btnEncUrl = 'http://' + location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")),
+                            btnPlace = props[geo[territorio].name];
                         var buttons = [
-                            '<a class="ssb" href="http://twitter.com/share?url=http://' + 
-                                location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + 
-                                '&text=' + encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene") + 
+                            '<a class="ssb" href="http://twitter.com/share?url=' + btnEncUrl + 
+                                '&via=confiscatibene' + 
+                                '&text=' + encodeURIComponent(btnPlace + ', immobili e aziende #confiscatibene ') + 
                                 '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
-                            '<a class="ssb" href="http://www.facebook.com/sharer.php?u=http://' + 
-                                location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + 
+                            '<a class="ssb" href="http://www.facebook.com/sharer.php?u=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
-                            '<a class="ssb" href="https://plus.google.com/share?url=http://' + 
-                                location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + 
+                            '<a class="ssb" href="https://plus.google.com/share?url=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
-                            '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=http://' + 
-                                location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + 
+                            '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=' + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
-                            '<a class="ssb" href="mailto:?Subject=Confiscati Bene a ' + 
-                                encodeURIComponent(props[geo[territorio].name]) + 
-                                '&Body=Gli immobili e le aziende %23confiscatibene di ' + 
-                                encodeURIComponent(props[geo[territorio].name]) + 
-                                ': http://' + location.hostname + encodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + 
+                            '<a class="ssb" href="mailto:?Subject=' + encodeURIComponent('Confiscati Bene | ' + btnPlace) + 
+                                '&Body=' + encodeURIComponent(btnPlace + ', gli immobili e le aziende #confiscatibene: ') + btnEncUrl + 
                                 '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>',
-                            '<a class="ssb" href="http://' + 
-                                location.hostname + Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&") + 
+                            '<a class="ssb" href="' + btnUrl + 
                                 '" target="_blank" title="Permalink"><img src="img/link.png" id="ssb-link"></a>'
                         ];
 
