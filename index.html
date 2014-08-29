@@ -61,6 +61,7 @@
                 .load("js/filesaver/Blob.js", "js/filesaver/canvas-toBlob.js", "js/filesaver/FileSaver.js")
                 .load("js/canvg/rgbcolor.js", "js/canvg/StackBlur.js", "js/canvg/canvg.js")
                 .load("js/html2canvas/html2canvas.js")
+                .load("js/md5/md5.min.js")
                 .load("css/cb.css", "css/cb-layout.css", "css/table.css");
 
             head.ready(function() {
@@ -365,9 +366,11 @@
                         label = {},
                         oldMd = parameters.md;
 
-                    var inputarea = L.DomUtil.create('div', 'info embed-inputarea');
+                    var inputarea = L.DomUtil.create('div', 'info embed-inputarea'),
+                        url = 'http://' + location.hostname + decodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&"));
 
                     p['permalink'] = L.DomUtil.create('p', 'permalink', inputarea);
+                    p['shorturl'] = L.DomUtil.create('p', 'shorturl', inputarea);
                     p['iframe'] = L.DomUtil.create('p', 'iframe', inputarea);
                     p['widget'] = L.DomUtil.create('p', 'widget', inputarea);
                     p['shortcode'] = L.DomUtil.create('p', 'shortcode', inputarea);
@@ -375,13 +378,21 @@
 
                     p['permalink'].innerHTML = '' + 
                         '<label for="embed-permalink" title="Clicca per selezionare">Permalink:</label>&nbsp;' + 
-                        '<input type="text" id="embed-permalink" value="http://' + location.hostname + decodeURIComponent(Arg.url(parameters).replace(/&*md=[^&]*/,'').replace(/&{2,}/g,"&")) + '"></input>';
+                        '<input type="text" id="embed-permalink" value="' + url + '"></input>';
+                    
+                    p['shorturl'].innerHTML = '' + 
+                        '<label for="embed-shorturl" title="Clicca per selezionare">Short URL:</label>&nbsp;' + 
+                        '<input type="text" id="embed-shorturl" value="Not yet available..."></input>';
+                    d3.json('http://dtnj.it/yourls-api.php?signature=efe758b8d3&action=shorturl&url=' + url +
+                        '&keyword=confiscatibene-'+md5(url)+'&format=json', function(err,data) {
+                            d3.select("input#embed-shorturl").attr("value",data.shorturl);
+                        });
                     
                     parameters.md = 'embed';
                     p['iframe'].innerHTML = '' + 
                         '<label for="embed-iframe" title="Clicca per selezionare">Embed in post/page:</label>&nbsp;' + 
                         '<input type="text" id="embed-iframe" value="' + 
-                        '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
                         'width=&quot;100%&quot; height=&quot;700&quot;></iframe>' + 
                         '"></input>';
@@ -390,7 +401,7 @@
                     p['widget'].innerHTML = '' + 
                         '<label for="embed-widget" title="Clicca per selezionare">Embed in sidebar:</label>&nbsp;' + 
                         '<input type="text" id="embed-widget" value="' + 
-                        '<iframe src=&quot;http://' + location.hostname + decodeURIComponent(Arg.url(parameters)) + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
+                        '<iframe src=&quot;' + url + '&quot; frameborder=&quot;0&quot; allowtransparency=&quot;true&quot; ' +
                         'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen ' +
                         'width=&quot;100%&quot; height=&quot;755&quot;></iframe>' + 
                         '"></input>';
