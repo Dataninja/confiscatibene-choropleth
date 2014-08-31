@@ -165,7 +165,7 @@
                     info.onAdd = function (map) {
                         this._div = L.DomUtil.create('div', 'info '+parameters.md);
                         this._div.setAttribute('id','infowindow');
-                        this._div.setAttribute('style','max-height:'+(head.screen.innerHeight-90)+'px;');
+                        this._div.setAttribute('style','max-height:'+(head.screen.innerHeight-100)+'px;');
                         d3.select(this._div)
                             .on("mouseenter", function() {
                                 map.scrollWheelZoom.disable();
