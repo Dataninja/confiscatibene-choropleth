@@ -53,7 +53,8 @@
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
                     "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css",
                     "js/label/leaflet.label.js", "js/label/leaflet.label.css",
-                    "js/fullscreen/Control.FullScreen.js", "js/fullscreen/Control.FullScreen.css"
+                    "js/fullscreen/Control.FullScreen.js", "js/fullscreen/Control.FullScreen.css",
+                    "js/markerclusters/leaflet.markercluster.js", "js/markerclusters/MarkerCluster.Default.css", "js/markerclusters/MarkerCluster.css"
                 ])
                 .load("js/completely/complete.ly.1.0.1.js")
                 .load("js/agnes/agnes.js")
@@ -781,16 +782,16 @@
                                 });
                             }
                             if (data[territorio].markers) {
-                                var markers = [],
+                                var markers = new L.MarkerClusterGroup({ showCoverageOnHover: false }),
                                     points = data[territorio].markers.result.records;
                                 for (var i=0; i<points.length; i++) {
                                     var marker = L.marker();
                                     marker.setIcon(L.icon({iconUrl: 'js/leaflet/marker-icon.png', shadowUrl: 'js/leaflet/marker-shadow.png'}));
                                     marker.setLatLng(L.latLng(points[i][parameters.mr.lat],points[i][parameters.mr.lng]));
                                     if (parameters.mr.hasOwnProperty('iw')) marker.bindPopup(points[i][parameters.mr.iw]);
-                                    markers.push(marker);
+                                    markers.addLayer(marker);
                                 }
-                                L.layerGroup(markers).addTo(map);
+                                map.addLayer(markers);
                             }
                         });
                     } else {
