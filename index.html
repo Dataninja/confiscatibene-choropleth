@@ -738,7 +738,7 @@
                     legend.update(territorio);
                 }
 
-                // Caricamente asincrono dei dati
+                // Caricamento asincrono dei dati
                 function loadData(territorio) { // territorio = regioni || province || comuni
                     d3.selectAll("nav#menu-ui a").classed("active", false);
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
@@ -747,8 +747,8 @@
                     if (!geo[territorio].resource || !data[territorio].resource) {
                         var limit = 5000,
                             geoPath = 'geo/' + 
-                                (parameters.t ? (territorio + '-' + parameters.t) : territorio) + 
-                                '.js',
+                                (parameters.t ? (territorio + '-' + parameters.tl + '-' + parameters.t) : territorio) + 
+                                '.json',
                             dataPath = apiPath + 
                                 '?resource_id=' + data[territorio].resourceId + 
                                 (parameters.t ? ('&filters[' + defaultData[parameters.tl].id + ']=' + parameters.t) : ""),
