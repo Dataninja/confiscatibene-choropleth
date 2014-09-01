@@ -371,10 +371,21 @@ img.screenshot: hover {
 
 /*** Marker infowindow ***/
 
+.leaflet-popup-content {
+    max-height: 350px;
+    overflow: auto;
+}
+
 .leaflet-popup-content p {
     margin-top: 0;
     margin-bottom: 5px;
 }
+
+.leaflet-popup-content img {
+    width: 150px;
+    height: auto;
+}
+
 
 /*** Print Handling ***/
 
