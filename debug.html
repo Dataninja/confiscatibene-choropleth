@@ -40,11 +40,34 @@
         <meta property="twitter:site" content="@confiscatibene" />
         <meta property="twitter:creator" content="@jenkin27" />
         <!-- End Twitter Card Metas -->
-        <!-- CSS -->
-        <link rel="stylesheet" type="text/css" href="cb-choropleth.min.css">
-        <!-- Javascript -->
-        <script src="cb-choropleth.lib.min.js"></script>
-        <script src="cb-choropleth.min.js"></script>
+        <script src="js/head/head.js"></script>
+        <script type="text/javascript">
+            //var JSTERS = {};
+            var MYDEBUG;
+            head.load("js/queue/queue.js")
+                .load("js/d3/d3.js")
+                .load("js/geostats/geostats.js")
+                .load("js/colorbrewer/colorbrewer.js")
+                .load([
+                    "js/leaflet/leaflet.js", "js/leaflet/leaflet.css",
+                    "js/spin-control/spin.js", "js/spin-control/leaflet.spin.js", 
+                    "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css",
+                    "js/label/leaflet.label.js", "js/label/leaflet.label.css",
+                    "js/fullscreen/Control.FullScreen.js", "js/fullscreen/Control.FullScreen.css",
+                    "js/markerclusters/leaflet.markercluster.js", "js/markerclusters/MarkerCluster.Default.css", "js/markerclusters/MarkerCluster.css"
+                ])
+                .load("js/completely/complete.ly.1.0.1.js")
+                .load("js/agnes/agnes.js")
+                .load("js/argjs/arg.js")
+                .load("js/filesaver/Blob.js", "js/filesaver/canvas-toBlob.js", "js/filesaver/FileSaver.js")
+                .load("js/canvg/rgbcolor.js", "js/canvg/StackBlur.js", "js/canvg/canvg.js")
+                .load("js/html2canvas/html2canvas.js")
+                .load("js/md5/md5.js")
+                .load("js/yourls/yourls.js")
+                .load("css/cb.css", "css/cb-layout.css", "css/table.css")
+                .load("cb-choropleth.js");
+
+        </script>
     </head>
     <body>
         <div id="fb-root"></div>
