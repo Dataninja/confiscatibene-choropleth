@@ -28,6 +28,10 @@ module.exports = function(grunt) {
             }
         },
         cssmin: {
+            options: {
+                keepSpecialComments: false,
+                target: 'img'
+            },
             combine: {
                 files: {
                     '<%= pkg.name %>.min.css': [
