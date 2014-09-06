@@ -252,7 +252,7 @@
                         d3.select(this._div).classed("closed", true);
                         if (parameters.md === 'mobile') {
                             map.dragging.enable();
-                            this._div.innerHTML += '<p>Clicca sui territori per i dettagli e per scaricare i dati, per info <a href="mailto:info@confiscatibene.it" target="_blank">scrivici</a>!</p>';
+                            this._div.innerHTML += '<a href="mailto:info@confiscatibene.it" target="_blank" style="margin-right: 30px;">Info</a>';
                         } else {
                             this._div.innerHTML += '' + 
                                 '<p>La mappa mostra il numero di beni confiscati per tutti i territori amministrativi italiani, secondo i dati ufficiali dell\'<a href="http://www.benisequestraticonfiscati.it" target="_blank">ANBSC</a> (sono esclusi i beni non confiscati in via autonoma). La corrispondenza tra il gradiente di colore e il numero complessivo di beni confiscati è dato nella legenda in basso a sinistra.</p>' + 
