@@ -46,6 +46,9 @@
                 if (parameters.mr && parameters.mr.hasOwnProperty('rid')) {
                     parameters.mr.lat = parameters.mr.lat || 'lat';
                     parameters.mr.lng = parameters.mr.lng || 'lng';
+                    if(parameters.mr.mc) {
+                        parameters.mr.mc = parseInt(parameters.mr.mc);
+                    }
                 }
                 
                 // Livelli disponibili da parametri dell'URL
@@ -719,16 +722,23 @@
                                 });
                             }
                             if (data[territorio].markers) {
-                                var markers = new L.MarkerClusterGroup({ showCoverageOnHover: false }),
+                                var clusters = new L.MarkerClusterGroup({ showCoverageOnHover: false }),
+                                    markers = [],
                                     points = data[territorio].markers.result.records;
                                 for (var i=0; i<points.length; i++) {
                                     var marker = L.marker();
                                     marker.setIcon(L.icon({iconUrl: 'js/leaflet/marker-icon.png', shadowUrl: 'js/leaflet/marker-shadow.png'}));
                                     marker.setLatLng(L.latLng(points[i][parameters.mr.lat],points[i][parameters.mr.lng]));
                                     if (parameters.mr.hasOwnProperty('iw')) marker.bindPopup(points[i][parameters.mr.iw]);
-                                    markers.addLayer(marker);
+                                    markers.push(marker);
+                                    clusters.addLayer(marker);
                                 }
-                                map.addLayer(markers);
+                                
+                                if (parameters.mr.mc) {
+                                    map.addLayer(clusters);
+                                } else {
+                                    map.addLayer(L.layerGroup(markers));
+                                }
                             }
                         });
                     } else {
