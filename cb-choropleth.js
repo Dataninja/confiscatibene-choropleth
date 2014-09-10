@@ -469,9 +469,9 @@
                     share.onAdd = function(map) {
                         var div = L.DomUtil.create('div','share '+parameters.md);
                         div.setAttribute('id','buttons');
-                        var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://viz.confiscatibene.it/anbsc/choropleth/" data-via="confiscatibene" data-lang="it" data-related="jenkin27:Data scientist at Dataninja" data-hashtags="confiscatibene,dataninja" data-count="vertical">Tweet</a>';
-                        var facebook = '<div class="fb-like" style="overflow:hidden;" data-href="http://viz.confiscatibene.it/anbsc/choropleth/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
-                        var gplus = '<div class="g-plusone" data-size="tall" data-href="http://viz.confiscatibene.it/anbsc/choropleth/" data-annotation="bubble"></div>';
+                        var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://' + location.hostname + location.pathname + '" data-via="confiscatibene" data-lang="it" data-related="jenkin27:Data scientist at Dataninja" data-hashtags="confiscatibene,dataninja" data-count="vertical">Tweet</a>';
+                        var facebook = '<div class="fb-like" style="overflow:hidden;" data-href="http://' + location.hostname + location.pathname + '" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
+                        var gplus = '<div class="g-plusone" data-size="tall" data-href="http://' + location.hostname + location.pathname + '" data-annotation="bubble"></div>';
                         div.innerHTML = twitter + facebook + gplus;
                         head.load("https://platform.twitter.com/widgets.js")
                             .load("http://connect.facebook.net/it_IT/sdk.js#xfbml=1&appId=470290923072583&version=v2.0") // appID di Dataninja
