@@ -226,13 +226,13 @@
                             });
                         });
                         var azPath = apiPath + 
-                            "?resource_id=i" + azResId + "&limit=5000&filters[" + 
+                            "?resource_id=" + azResId + "&limit=5000&filters[" + 
                             filterKey + 
                             "]=" + 
                             filterValue;
                         d3.select('a#a-aziende').on("click", function() {
                             var that = this;
-                            d3.json(imPath, function(err,res) {
+                            d3.json(azPath, function(err,res) {
                                 if (res.result.records.length > 0) {
                                     var csv = agnes.jsonToCsv(res.result.records, delim),
                                         blob = new Blob([csv], {type: "text/csv;charset=utf-8"}),
